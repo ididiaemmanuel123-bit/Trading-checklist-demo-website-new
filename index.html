@@ -1,0 +1,297 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="description"
+      content="Is a platform that help trades become disciplined and consistent in their trading journey"
+    />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Trade Setup Checklist</title>
+    <link rel="stylesheet" href="style.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css"
+    />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  </head>
+  <body>
+    <!-- History section - left side of page -->
+    <section id="historySection" class="historySection">
+      <div class="top">
+        <div class="historyTopRow">
+          <h2>History</h2>
+          <button class="settingsBtn" id="settingsBtn" title="Change name">
+            <i class="fa-solid fa-gear"></i>
+          </button>
+        </div>
+        <!-- rest of .top stays the same -->
+
+        <!-- Filter bar -->
+        <div class="historyFilter">
+          <select name="filterPair" id="filterPair">
+            <option value="all">All</option>
+            <option value="USDJPY">USDJPY</option>
+            <option value="GBPUSD">GBPUSD</option>
+            <option value="XAUUSD">XAUUSD</option>
+            <option value="BTCUSD">BTCUSD</option>
+            <option value="AUDUSD">AUDUSD</option>
+            <option value="NZDCHF">NZDCHF</option>
+          </select>
+
+          <select name="filterOutcome" id="filterOutcome">
+            <option value="all">All</option>
+            <option value="Open">Open</option>
+            <option value="Win">Win</option>
+            <option value="Loss">Loss</option>
+            <option value="Breakeven">Breakeven</option>
+          </select>
+        </div>
+
+        <!-- Trade count -->
+        <p id="tradeCount">0 trades saved</p>
+      </div>
+
+      <div id="historyList"></div>
+      <div id="performance" class="performance">
+        <h3>Performance</h3>
+        <p>Win Rate: <span id="winRate">--%</span></p>
+        <p>Total Trades: <span id="totalTrades">0</span></p>
+        <p>Avg R:R: <span id="avgRR">--</span></p>
+      </div>
+    </section>
+
+    <!-- Header & Trading Plan Section -->
+    <section class="tradePlan">
+      <header class="pageHeader">
+        <h1>Trade Setup Checklist</h1>
+        <p>Plan every trade with discipline before you enter.</p>
+      </header>
+
+      <form id="tradeForm" class="tradeForm">
+        <!-- Pair and Direction -->
+        <fieldset class="formGroup">
+          <legend>Pair and Direction</legend>
+
+          <label for="pair">Currency Pair</label>
+          <select id="pair" name="pair" required>
+            <option value="" disabled selected>Select pair</option>
+            <option value="USDJPY">USD/JPY</option>
+            <option value="GBPUSD">GBP/USD</option>
+            <option value="XAUUSD">XAU/USD</option>
+            <option value="BTCUSD">BTC/USD</option>
+            <option value="AUDUSD">AUD/USD</option>
+            <option value="NZDCHF">NZD/CHF</option>
+          </select>
+
+          <label>Direction</label>
+          <div class="radioGroup">
+            <label>
+              <input type="radio" name="direction" value="long" required />
+              Long
+            </label>
+            <label>
+              <input type="radio" name="direction" value="short" />
+              Short
+            </label>
+          </div>
+        </fieldset>
+
+        <!-- Bias -->
+        <fieldset class="formGroup">
+          <legend>Market Bias</legend>
+
+          <label for="htfTimeframe">HTF Timeframe</label>
+          <select id="htfTimeframe" name="htfTimeframe" required>
+            <option value="" disabled selected>Select timeframe</option>
+            <option value="Weekly">Weekly</option>
+            <option value="Daily">Daily</option>
+            <option value="4H">4H</option>
+            <option value="1H">1H</option>
+          </select>
+
+          <label for="ltfTimeframe">LTF Entry Timeframe</label>
+          <select id="ltfTimeframe" name="ltfTimeframe" required>
+            <option value="" disabled selected>Select timeframe</option>
+            <option value="1H">1H</option>
+            <option value="15m">15m</option>
+            <option value="5m">5m</option>
+            <option value="1m">1m</option>
+          </select>
+
+          <label for="biasDirection">Bias Direction</label>
+          <select id="biasDirection" name="biasDirection" required>
+            <option value="" disabled selected>Select bias</option>
+            <option value="Bullish">Bullish</option>
+            <option value="Bearish">Bearish</option>
+            <option value="Neutral">Neutral</option>
+          </select>
+        </fieldset>
+
+        <!-- Point of Interest -->
+        <fieldset class="formGroup">
+          <legend>Point of Interest (POI)</legend>
+
+          <label for="poiType">POI Type</label>
+          <select id="poiType" name="poiType" required>
+            <option value="" disabled selected>Select POI type</option>
+            <option value="Support">Support</option>
+            <option value="Resistance">Resistance</option>
+            <option value="Demand Zone">Demand Zone</option>
+            <option value="Supply Zone">Supply Zone</option>
+            <option value="Order Block">Order Block</option>
+            <option value="Fair Value Gap">Fair Value Gap</option>
+            <option value="Breaker Block">Breaker Block</option>
+            <option value="Mitigation Block">Mitigation Block</option>
+          </select>
+        </fieldset>
+
+        <!-- Liquidity Context -->
+        <fieldset class="formGroup">
+          <legend>Liquidity Context</legend>
+
+          <label>
+            <input type="checkbox" name="liquidity" value="Swept Buy-Side" />
+            Swept Buy-Side Liquidity
+          </label>
+          <label>
+            <input type="checkbox" name="liquidity" value="Swept Sell-Side" />
+            Swept Sell-Side Liquidity
+          </label>
+          <label>
+            <input type="checkbox" name="liquidity" value="Equal Highs/Lows" />
+            Equal Highs/Lows
+          </label>
+          <label>
+            <input type="checkbox" name="liquidity" value="None" />
+            None Identified
+          </label>
+        </fieldset>
+
+        <!-- Confluences -->
+        <fieldset class="formGroup">
+          <legend>Confluences</legend>
+
+          <label>
+            <input type="checkbox" name="confluences" value="Trendline Break" />
+            Trendline Break
+          </label>
+          <label>
+            <input
+              type="checkbox"
+              name="confluences"
+              value="Market Structure Shift"
+            />
+            Market Structure Shift
+          </label>
+          <label>
+            <input type="checkbox" name="confluences" value="Imbalance" />
+            Imbalance
+          </label>
+          <label>
+            <input type="checkbox" name="confluences" value="FVG" />
+            FVG
+          </label>
+          <label>
+            <input type="checkbox" name="confluences" value="Session Timing" />
+            Session Timing
+          </label>
+          <label>
+            <input type="checkbox" name="confluences" value="Candle Stick" />
+            Candle Stick
+          </label>
+        </fieldset>
+
+        <!-- Prices and Risk -->
+        <fieldset class="formGroup">
+          <legend>Entry, Stop, and Target</legend>
+
+          <label for="entryPrice">Entry Price</label>
+          <input
+            type="number"
+            id="entryPrice"
+            name="entryPrice"
+            step="any"
+            placeholder="e.g. 157.250"
+            required
+          />
+
+          <label for="stopPrice">Stop Loss Price</label>
+          <input
+            type="number"
+            id="stopPrice"
+            name="stopPrice"
+            step="any"
+            placeholder="e.g. 156.900"
+            required
+          />
+
+          <label for="takeProfitPrice">Take Profit Price</label>
+          <input
+            type="number"
+            id="takeProfitPrice"
+            name="takeProfitPrice"
+            step="any"
+            placeholder="e.g. 158.100"
+            required
+          />
+        </fieldset>
+
+        <!-- Notes -->
+        <fieldset class="formGroup">
+          <legend>Notes</legend>
+          <label for="notes">Reasoning / Additional Notes</label>
+          <textarea
+            id="notes"
+            name="notes"
+            rows="4"
+            placeholder="Why this setup, what could invalidate it"
+          ></textarea>
+        </fieldset>
+
+        <button type="submit" id="generateBtn">Generate Trade Plan</button>
+      </form>
+    </section>
+
+    <!-- Risk Calculation Section -->
+    <section class="riskCal">
+      <!-- This box will be filled live by JS in Stage 4 -->
+      <h4>Risk Calculator</h4>
+      <div id="riskRewardPreview" class="rrPreview">
+        <p>Risk: <span id="riskValue">--</span></p>
+        <p>Reward: <span id="rewardValue">--</span></p>
+        <p>R:R Ratio: <span id="rrValue">--</span></p>
+      </div>
+
+      <!-- Stage 5 will inject the generated summary card here -->
+      <div id="summaryOutput" class="summaryOutput"></div>
+    </section>
+
+    <!-- Overlay for tablet history drawer -->
+    <div class="historyOverlay" id="historyOverlay"></div>
+
+    <!-- Fixed back button — shows on mobile when viewing a trade -->
+    <button class="backBtn-fixed" id="backBtnFixed">
+      <i class="fa-solid fa-arrow-left-long"></i> Back
+    </button>
+    <button class="hitoryBtn">
+      <i class="fa-regular fa-calendar"></i>
+    </button>
+    <!-- Username modal -->
+    <div class="nameModal" id="nameModal">
+      <div class="nameModalBox">
+        <h3>Welcome to SMC Checklist</h3>
+        <p>Enter your name to personalise your trade receipts.</p>
+        <input
+          type="text"
+          id="nameInput"
+          placeholder="e.g. Emmy"
+          maxlength="40"
+        />
+        <button id="saveNameBtn">Get Started</button>
+      </div>
+    </div>
+    <div id="toast" class="toast"></div>
+    <script src="script.js"></script>
+  </body>
+</html>

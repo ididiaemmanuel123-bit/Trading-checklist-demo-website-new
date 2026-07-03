@@ -1,0 +1,742 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
+
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    min-height: 100vh;
+    width: 100%;
+    display: flex;
+    font-family: Montserrat;
+    background: linear-gradient(to bottom, rgba(0, 0, 0, 0.822), black);
+    color: white;
+}
+
+/* History styling */
+.historySection{
+    width: 25%;
+    height: 100vh;
+    overflow-y: auto;
+    border-right: 2px solid rgba(255,255,255,0.15);    
+    scrollbar-width: none;
+}
+
+/* History top row with settings button */
+.historyTopRow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    padding: 1rem 1.5rem;
+    border-bottom: 2px solid rgba(255,255,255,0.15);
+}
+
+.historyTopRow h2 {
+    font-weight: 500;
+    border-bottom: none;
+    padding: 0;
+}
+
+.settingsBtn {
+    position: absolute;
+    right: 1.5rem;
+    background: none;
+    border: none;
+    color: rgba(255,255,255,0.4);
+    font-size: 14px;
+    cursor: pointer;
+    padding: 0.3rem;
+    width: auto;
+    margin: 0;
+    transition: 0.2s ease;
+}
+
+.settingsBtn:hover {
+    color: white;
+    background: none;
+}
+
+/* Name modal */
+.nameModal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.85);
+    z-index: 9000;
+    align-items: center;
+    justify-content: center;
+}
+
+.nameModal.open {
+    display: flex;
+}
+
+.nameModalBox {
+    background: #0a0010;
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 12px;
+    padding: 2rem;
+    width: 320px;
+    text-align: center;
+}
+
+.nameModalBox h3 {
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+.nameModalBox p {
+    font-size: 13px;
+    color: rgba(255,255,255,0.5);
+    margin-bottom: 1.2rem;
+}
+
+.nameModalBox input {
+    width: 100%;
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 6px;
+    color: white;
+    font-family: Montserrat;
+    font-size: 14px;
+    padding: 0.6rem 1rem;
+    outline: none;
+    margin-bottom: 1rem;
+    text-align: center;
+}
+
+.nameModalBox button {
+    width: 100%;
+    padding: 0.6rem 1rem;
+    background: purple;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: 0.2s ease;
+    margin: 0;
+}
+
+.nameModalBox button:hover {
+    background: rgb(65,0,65);
+}
+
+.historySection h2 {
+    text-align: center;
+    font-weight: 500;
+}
+
+.historySection .historyFilter {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    padding: 1rem 1.5rem 1rem 1.5rem;
+}
+
+.historySection .historyFilter #filterPair, 
+.historySection .historyFilter #filterOutcome{
+    border: none;
+    border-radius: 5px;
+    color: rgb(255, 255, 255);
+    font-family: Montserrat;
+    font-weight: 400;
+    font-size: 13px;
+    padding: 0.2rem 0.5rem;
+    background: rgba(0, 0, 0, 0.822);
+    cursor: pointer;
+}
+
+.historySection .historyFilter #filterPair:focus, 
+.historySection .historyFilter #filterOutcome:focus {
+    outline: none;
+}
+
+.historySection #tradeCount {
+    font-size: 15px;
+    color: gray;
+    padding: 0rem 1.5rem 1.5rem 1.5rem;
+}
+
+.historySection .top {
+    box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.37);
+}
+
+.historySection #historyList {
+    min-height: 300px;
+    max-height: calc(100vh - 280px); /* 280px accounts for header + filter + count + performance */
+    overflow-y: auto;
+    scrollbar-width: none;
+    padding: 0.2rem 1.5rem 0.2rem 1.5rem;
+    border-bottom: 2px solid rgba(255,255,255,0.15);
+}
+
+/* ── Stage 6: History Cards ─────────────────────────────────────── */
+
+.historyCard {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 8px;
+    padding: 0.7rem 1rem;
+    margin-bottom: 0.8rem;
+    font-size: 13px;
+}
+
+.historyCard .historyCardTop {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 0.4rem;
+}
+
+.historyCard .historyPair {
+    font-weight: 700;
+    font-size: 13px;
+    flex: 1;
+}
+
+.historyCard .historyCardMid {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    color: rgba(255,255,255,0.5);
+    margin-bottom: 0.5rem;
+}
+
+.historyCard .historyCardActions {
+    display: flex;
+    gap: 6px;
+}
+
+.historyCard .historyCardActions button {
+    flex: 1;
+    padding: 0.3rem 0.4rem;
+    border: none;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.2s ease;
+    background: rgba(255,255,255,0.08);
+    color: white;
+}
+
+.historyCard .historyCardActions button:hover {
+    background: rgba(255,255,255,0.18);
+}
+
+/* ── Stage 6: Outcome Update Form ──────────────────────────────── */
+
+.outcomeForm {
+    margin-top: 0.7rem;
+    padding-top: 0.7rem;
+    border-top: 1px solid rgba(255,255,255,0.1);
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.outcomeForm select,
+.outcomeForm input {
+    width: 100%;
+    background: rgba(0,0,0,0.4);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 4px;
+    color: white;
+    font-family: Montserrat;
+    font-size: 12px;
+    padding: 0.3rem 0.5rem;
+}
+
+.outcomeForm select:focus,
+.outcomeForm input:focus {
+    outline: none;
+}
+
+.outcomeFormActions {
+    display: flex;
+    gap: 6px;
+}
+
+.outcomeFormActions button {
+    flex: 1;
+    padding: 0.3rem;
+    border: none;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.2s ease;
+}
+
+.outcomeFormActions button:first-child {
+    background: purple;
+    color: white;
+}
+
+.outcomeFormActions button:first-child:hover {
+    background: rgb(65,0,65);
+}
+
+.outcomeFormActions button:last-child {
+    background: rgba(255,255,255,0.08);
+    color: white;
+}
+
+.outcomeFormActions button:last-child:hover {
+    background: rgba(255,255,255,0.18);
+}
+
+.keepOpenBtn {
+    width: 100%;
+    padding: 0.3rem;
+    border: none;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+    background: rgba(255,255,255,0.05);
+    color: rgba(255,255,255,0.4);
+    transition: 0.2s ease;
+}
+
+.keepOpenBtn:hover {
+    background: rgba(255,255,255,0.1);
+    color: white;
+}
+
+.historySection .performance {
+    padding-top: 1rem;
+    box-shadow: 0px -50px 50px rgba(0, 0, 0, 0.699);
+}
+
+.historySection .performance h3 {
+    text-align: center;
+    font-weight: 300;
+    padding: 0.5rem 1.5rem 1rem 1.5rem;
+    border-bottom: 2px solid rgba(255,255,255,0.15);
+}
+
+.historySection .performance p {
+    font-size: 15px;
+    padding: 0.5rem 1.5rem;
+}
+
+.historySection .performance p span {
+    color: rgb(117, 190, 8);
+}
+
+/* Trade Plan styling */
+
+.tradePlan{
+    width: 50%;
+    height: 100vh;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255,255,255,0.15) transparent;
+}
+
+.tradePlan .pageHeader {
+    padding: 1.5rem;
+    border-bottom: 2px solid rgba(255,255,255,0.15);
+}
+
+.tradePlan .pageHeader h1{
+    font-size: 22px;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    text-align: center;
+}
+
+.tradePlan .pageHeader p{ 
+    text-align: center;
+}
+
+.tradePlan form {
+    padding: 1rem 1.5rem;
+}
+
+.tradePlan .formGroup {
+    border: 2px solid rgba(248, 248, 255, 0.12);
+    border-radius: 15px;
+    padding: 1rem 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.tradePlan .formGroup legend {
+    font-weight: 600;
+    text-transform: uppercase;
+    color: rgb(255, 255, 255);
+    background: rgba(248, 248, 255, 0.062);
+    border-radius: 5px;
+    padding: 0.5rem 1rem;
+}
+
+.tradePlan .formGroup select,
+.tradePlan .formGroup input:not([type="checkbox"]):not([type="radio"]){
+    width: 100%;
+    border: none;
+    border-radius: 5px;
+    color: rgb(255, 255, 255);
+    font-family: Montserrat;
+    font-weight: 400;
+    font-size: 13px;
+    padding: 0.4rem 0.3rem;
+    background: rgba(0, 0, 0, 0.397);
+    cursor: pointer;
+}
+
+.tradePlan .formGroup select:focus,
+.tradePlan .formGroup input:focus {
+    outline: none;
+}
+
+.tradePlan .formGroup label {
+    display: block;
+    font-size: 13px;
+    font-weight: 500;
+    color: rgba(255,255,255,0.7);
+    margin-top: 0.8rem;
+    margin-bottom: 0.3rem;
+}
+
+.tradePlan .formGroup .radioGroup {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.tradePlan .formGroup .radioGroup label,
+.tradePlan .formGroup label:has(input[type="checkbox"]) {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 0.4rem;
+    margin-bottom: 0;
+}
+
+.tradePlan .formGroup #notes {
+    color: white;
+    background: rgba(0, 0, 0, 0.397);
+    width: 100%;
+    height: 150px;
+    resize: none;
+    padding: 0.5rem 0.5rem;
+    margin-top: 0.5rem;
+    outline: none;
+    border: none;
+    border-radius: 5px;
+}
+
+.tradePlan .formGroup #notes::placeholder{
+    font-family: Montserrat;
+}
+
+.tradePlan button {
+    width: 100%;
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 5px;
+    background: purple;
+    color: white;
+    font-weight: 600;
+    cursor: pointer;
+    margin-bottom: 1rem;
+    transition: 0.3s ease;
+}
+
+.tradePlan button:hover {
+    background: rgb(65, 0, 65);
+}
+
+
+
+/* Risk Calculator styling */
+
+.riskCal{
+    width: 25%;
+    height: 100vh;
+    overflow-y: auto;
+    scrollbar-width: none;
+    scroll-behavior: smooth;
+    border-left: 2px solid    rgba(255,255,255,0.15);
+}
+
+.riskCal h4 {
+    font-size: 20px;
+    text-align: center;
+    font-weight: 500;
+    padding: 1rem 1.5rem 1rem 1.5rem;
+    border-bottom: 2px solid rgba(255,255,255,0.15);
+}
+
+.riskCal .rrPreview {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 10px;
+    padding: 1rem 1.5rem;
+    margin: 1rem;
+} 
+
+.riskCal #riskValue {
+    color: red;
+}
+
+.riskCal #rewardValue {
+    color: rgb(117, 190, 8);
+}
+
+.riskCal #rrValue {
+    color: rgb(117, 190, 8);
+}
+
+.riskCal .rrPreview p {
+    font-size: 14px;
+    color: rgba(255,255,255,0.6);
+    padding: 0.4rem 0;
+}
+
+.summaryOutput .summaryCard {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 10px;
+    padding: 1rem 1.5rem;
+    margin: 1rem;
+    font-size: 13px;
+    line-height: 1.8;
+}
+
+.summaryCard .cardTitle {
+    font-size: 15px;
+    font-weight: 700;
+    margin-bottom: 0.8rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid rgba(255,255,255,0.12);
+}
+
+.summaryCard .badge {
+    display: inline-block;
+    padding: 0.2rem 0.6rem;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.summaryCard .badge.long { background: rgba(117,190,8,0.2); color: rgb(117,190,8); }
+.summaryCard .badge.short { background: rgba(255,0,0,0.2); color: red; }
+.summaryCard .badge.open { background: rgba(255,255,255,0.1); color: white; }
+.summaryCard .badge.win { background: rgba(117,190,8,0.2); color: rgb(117,190,8); }
+.summaryCard .badge.loss { background: rgba(255,0,0,0.2); color: red; }
+.summaryCard .badge.breakeven { background: rgba(255,165,0,0.2); color: orange; }
+
+.summaryCard .cardRow {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.2rem 0;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+
+.summaryCard .cardLabel {
+    color: rgba(255,255,255,0.5);
+    font-size: 12px;
+}
+
+.summaryCard .cardValue {
+    color: white;
+    font-weight: 500;
+    text-align: right;
+    max-width: 60%;
+}
+
+.summaryCard .cardActions {
+    display: flex;
+    gap: 10px;
+    margin-top: 1rem;
+}
+
+.summaryCard .cardActions button {
+    flex: 1;
+    padding: 0.4rem 0.5rem;
+    border: none;
+    border-radius: 5px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.3s ease;
+}
+
+.summaryCard .btnSave { background: purple; color: white; }
+.summaryCard .btnSave:hover { background: rgb(65,0,65); }
+.summaryCard .btnExport { background: rgba(255,255,255,0.1); color: white; }
+.summaryCard .btnExport:hover { background: rgba(255,255,255,0.2); }
+
+
+/* Custom notification/alert */
+.toast {
+    position: fixed;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(30, 0, 50, 0.95);
+    color: white;
+    padding: 0.7rem 1.5rem;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    border: 1px solid rgba(255,255,255,0.15);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+    z-index: 9999;
+}
+
+.toast.show {
+    opacity: 1;
+}
+
+.outcomeButtons {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 4px;
+}
+
+.outcomeBtn {
+    flex: 1;
+    padding: 0.4rem 0.3rem;
+    border: none;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: 0.2s ease;
+}
+
+.btnLoss { background: rgba(255,0,0,0.2); color: red; }
+.btnLoss:hover { background: rgba(255,0,0,0.35); }
+.btnWin { background: rgba(117,190,8,0.2); color: rgb(117,190,8); }
+.btnWin:hover { background: rgba(117,190,8,0.35); }
+.btnBreakeven { background: rgba(255,165,0,0.2); color: orange; }
+.btnBreakeven:hover { background: rgba(255,165,0,0.35); }
+
+.hitoryBtn {
+    display: none;
+    position: fixed;
+    padding: 1rem 1rem;
+    font-size: 30px;
+    border: none;
+    border-radius: 50%;
+    color: white;
+    background:  linear-gradient(to bottom, rgba(231, 231, 231, 0.192) 25%, rgba(0, 0, 0, 0.966) 100%);
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.329);
+    cursor: pointer;
+    left: 90%;
+    top: 85%;
+} 
+
+/* Back button — fixed, only visible on mobile when viewing a trade */
+.backBtn-fixed {
+    display: none;
+    position: fixed;
+    top: 1rem;
+    left: 1rem;
+    z-index: 1100;
+    background: rgba(30,0,50,0.95);
+    border: 1px solid rgba(255,255,255,0.15);
+    color: white;
+    font-size: 16px;
+    padding: 0.5rem 0.8rem;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.backBtn-fixed.visible {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+/* Table Screen */
+@media (max-width: 960px) {
+    .historySection {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 320px;
+        height: 100vh;
+        z-index: 1000;
+        background:linear-gradient(to bottom, rgba(0,0,0,0.95), black);
+        border-right: 2px solid rgba(255,255,255,0.15);
+    }
+
+    .historySection.open {
+        display: block;
+    }
+
+    .historyOverlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,0.5);
+        z-index: 999;
+    }
+
+    .historyOverlay.open {
+        display: block;
+    }
+
+    .hitoryBtn {
+        left: 85%;
+        display: flex;
+    }
+
+    .tradePlan {
+        width: 60%;
+    }
+
+    .riskCal {
+        width: 40%;
+    }
+}
+
+/* Mobile Screen */
+@media (max-width: 460px) {
+    body {
+        height: auto;
+        flex-direction: column;
+    }
+
+    .historySection.open {
+        display: block;
+    }
+
+    .historySection {
+        position: fixed;
+        width: 100%;
+        z-index: 1000;
+    }
+
+    .hitoryBtn {
+        left: 80%;
+    }
+
+    .tradePlan {
+        height: auto;
+        width: 100%;
+    }
+
+    .riskCal {
+        display: block;
+        border-top: 2px solid rgba(128, 128, 128, 0.212);
+        border-left: none;
+        height: auto;
+        width: 100%;
+    }
+}
