@@ -3,9 +3,6 @@
 const USER_NAME_KEY = 'smcUserName';
 const USER_ID_KEY = 'smcUserId';
 
-// Generate a short unique ID for the user — runs once and is saved permanently
-// Format: USR-XXXXXX where X is a random alphanumeric character
-// This ID appears on every PDF so each user's exports are uniquely tagged
 function generateUserId() {
   const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
   let id = 'USR-';
@@ -15,13 +12,10 @@ function generateUserId() {
   return id;
 }
 
-// Get the saved user name — returns saved name or default 'User' if not set yet
 function getUserName() {
   return localStorage.getItem(USER_NAME_KEY) || 'User';
 }
 
-// Get the saved user ID — generates and saves one if it doesn't exist yet
-// This means every device that opens the tool gets a permanent unique ID
 function getUserId() {
   var id = localStorage.getItem(USER_ID_KEY);
   if (!id) {
@@ -31,9 +25,6 @@ function getUserId() {
   return id;
 }
 
-// Check on page load if the user has already set their name
-// If not — show the welcome modal so they can enter it
-// If yes — skip the modal entirely, proceed normally
 function checkUserName() {
   const saved = localStorage.getItem(USER_NAME_KEY);
   if (!saved) {
@@ -41,51 +32,38 @@ function checkUserName() {
   }
 }
 
-// Open the name modal
 function openNameModal() {
   const modal = document.getElementById('nameModal');
   if (modal) modal.classList.add('open');
-  // Focus the input so the user can start typing immediately
   setTimeout(function() {
     const input = document.getElementById('nameInput');
     if (input) input.focus();
   }, 100);
 }
 
-// Close the name modal
 function closeNameModal() {
   const modal = document.getElementById('nameModal');
   if (modal) modal.classList.remove('open');
 }
 
-// Save the name the user typed and close the modal
-// If the field is empty, save 'User' as the default
 function saveUserName() {
   const input = document.getElementById('nameInput');
   const name = input.value.trim();
-
-  // Use entered name or fall back to 'User' if blank
   const finalName = name !== '' ? name : 'User';
-
   localStorage.setItem(USER_NAME_KEY, finalName);
   closeNameModal();
   showToast('Welcome, ' + finalName + '!');
 }
 
-// Wire up the Get Started button and settings gear icon
 document.getElementById('saveNameBtn').addEventListener('click', saveUserName);
 
-// Allow pressing Enter in the name input to confirm
 document.getElementById('nameInput').addEventListener('keydown', function(e) {
   if (e.key === 'Enter') saveUserName();
 });
 
-// Settings gear icon — re-opens the modal so user can update their name
-// Also pre-fills the input with their current saved name
 document.getElementById('settingsBtn').addEventListener('click', function() {
   const input = document.getElementById('nameInput');
   input.value = getUserName();
-  // Change the button text to reflect it's an update not a first-time setup
   document.getElementById('saveNameBtn').textContent = 'Update Name';
   document.querySelector('.nameModalBox h3').textContent = 'Update Your Name';
   document.querySelector('.nameModalBox p').textContent = 'Change the name that appears on your trade receipts.';
@@ -114,44 +92,48 @@ function isTablet() {
   return window.innerWidth <= 960 && window.innerWidth > 460;
 }
 
-function openHistoryPanel() {
-  const historySection = document.getElementById('historySection');
-  const overlay = document.getElementById('historyOverlay');
-  historySection.classList.add('open');
-  if (overlay) overlay.classList.add('open');
-}
-
-function closeHistoryPanel() {
-  const historySection = document.getElementById('historySection');
-  const overlay = document.getElementById('historyOverlay');
-  historySection.classList.remove('open');
-  if (overlay) overlay.classList.remove('open');
-}
-
+// Show the back button — now called when history OPENS on mobile
+// so the user can always close the panel, not just after viewing a trade
 function showBackBtn() {
   const btn = document.getElementById('backBtnFixed');
   if (btn) btn.classList.add('visible');
 }
 
+// Hide the back button — called when history CLOSES
 function hideBackBtn() {
   const btn = document.getElementById('backBtnFixed');
   if (btn) btn.classList.remove('visible');
 }
 
-function showTradeDetail() {
+// Open the history panel
+// On mobile: also shows the back button immediately so user can close history
+function openHistoryPanel() {
+  const historySection = document.getElementById('historySection');
+  const overlay = document.getElementById('historyOverlay');
+  historySection.classList.add('open');
+  if (overlay) overlay.classList.add('open');
+
+  // Show back button as soon as history opens on mobile
+  // This lets user close history at any point, not just after viewing a trade
   if (isMobile()) {
-    closeHistoryPanel();
-    const riskCal = document.querySelector('.riskCal');
-    if (riskCal) riskCal.scrollTop = 0;
     showBackBtn();
   }
 }
 
-function handleBackBtn() {
-  openHistoryPanel();
+// Close the history panel
+// Hides the back button since the history is now closed
+function closeHistoryPanel() {
+  const historySection = document.getElementById('historySection');
+  const overlay = document.getElementById('historyOverlay');
+  historySection.classList.remove('open');
+  if (overlay) overlay.classList.remove('open');
   hideBackBtn();
-  summaryOutput.innerHTML = '';
-  window.currentTrade = null;
+}
+
+// Back button handler — simply closes the history panel
+// The back button is now purely a "close history" button on mobile
+function handleBackBtn() {
+  closeHistoryPanel();
 }
 
 
@@ -231,15 +213,13 @@ function renderSummaryCard(trade) {
     ? `<div class="cardRow">
         <span class="cardLabel">Actual Exit Price</span>
         <span class="cardValue">${trade.actualExitPrice}</span>
-       </div>`
-    : '';
+       </div>` : '';
 
   const dateClosedRow = trade.dateClosed !== null
     ? `<div class="cardRow">
         <span class="cardLabel">Date Closed</span>
         <span class="cardValue">${trade.dateClosed}</span>
-       </div>`
-    : '';
+       </div>` : '';
 
   const cardHTML = `
     <div class="summaryCard" id="summaryCard-${trade.id}">
@@ -247,70 +227,26 @@ function renderSummaryCard(trade) {
         Trade Plan — ${trade.pair}
         <span class="badge ${trade.direction}">${directionDisplay}</span>
       </div>
-      <div class="cardRow">
-        <span class="cardLabel">Date Opened</span>
-        <span class="cardValue">${trade.dateOpened}</span>
-      </div>
+      <div class="cardRow"><span class="cardLabel">Date Opened</span><span class="cardValue">${trade.dateOpened}</span></div>
       ${dateClosedRow}
       <div class="cardRow">
         <span class="cardLabel">Outcome</span>
-        <span class="cardValue">
-          <span class="badge ${trade.outcome.toLowerCase()}">${trade.outcome}</span>
-        </span>
+        <span class="cardValue"><span class="badge ${trade.outcome.toLowerCase()}">${trade.outcome}</span></span>
       </div>
-      <div class="cardRow">
-        <span class="cardLabel">HTF Timeframe</span>
-        <span class="cardValue">${trade.htfTimeframe}</span>
-      </div>
-      <div class="cardRow">
-        <span class="cardLabel">LTF Timeframe</span>
-        <span class="cardValue">${trade.ltfTimeframe}</span>
-      </div>
-      <div class="cardRow">
-        <span class="cardLabel">Bias</span>
-        <span class="cardValue">${trade.biasDirection}</span>
-      </div>
-      <div class="cardRow">
-        <span class="cardLabel">POI Type</span>
-        <span class="cardValue">${trade.poiType}</span>
-      </div>
-      <div class="cardRow">
-        <span class="cardLabel">Liquidity</span>
-        <span class="cardValue">${liquidityText}</span>
-      </div>
-      <div class="cardRow">
-        <span class="cardLabel">Confluences</span>
-        <span class="cardValue">${confluencesText}</span>
-      </div>
-      <div class="cardRow">
-        <span class="cardLabel">Entry Price</span>
-        <span class="cardValue">${trade.entryPrice}</span>
-      </div>
-      <div class="cardRow">
-        <span class="cardLabel">Stop Loss</span>
-        <span class="cardValue">${trade.stopPrice}</span>
-      </div>
-      <div class="cardRow">
-        <span class="cardLabel">Take Profit</span>
-        <span class="cardValue">${trade.takeProfitPrice}</span>
-      </div>
+      <div class="cardRow"><span class="cardLabel">HTF Timeframe</span><span class="cardValue">${trade.htfTimeframe}</span></div>
+      <div class="cardRow"><span class="cardLabel">LTF Timeframe</span><span class="cardValue">${trade.ltfTimeframe}</span></div>
+      <div class="cardRow"><span class="cardLabel">Bias</span><span class="cardValue">${trade.biasDirection}</span></div>
+      <div class="cardRow"><span class="cardLabel">POI Type</span><span class="cardValue">${trade.poiType}</span></div>
+      <div class="cardRow"><span class="cardLabel">Liquidity</span><span class="cardValue">${liquidityText}</span></div>
+      <div class="cardRow"><span class="cardLabel">Confluences</span><span class="cardValue">${confluencesText}</span></div>
+      <div class="cardRow"><span class="cardLabel">Entry Price</span><span class="cardValue">${trade.entryPrice}</span></div>
+      <div class="cardRow"><span class="cardLabel">Stop Loss</span><span class="cardValue">${trade.stopPrice}</span></div>
+      <div class="cardRow"><span class="cardLabel">Take Profit</span><span class="cardValue">${trade.takeProfitPrice}</span></div>
       ${exitPriceRow}
-      <div class="cardRow">
-        <span class="cardLabel">Risk</span>
-        <span class="cardValue" style="color: red;">${trade.riskValue}</span>
-      </div>
-      <div class="cardRow">
-        <span class="cardLabel">Reward</span>
-        <span class="cardValue" style="color: rgb(117,190,8);">${trade.rewardValue}</span>
-      </div>
-      <div class="cardRow">
-        <span class="cardLabel">R:R Ratio</span>
-        <span class="cardValue" style="color: rgb(117,190,8);">${trade.rrValue}</span>
-      </div>
-      <div class="cardRow">
-        <span class="cardLabel">Notes</span>
-        <span class="cardValue">${notesDisplay}</span>
-      </div>
+      <div class="cardRow"><span class="cardLabel">Risk</span><span class="cardValue" style="color:red;">${trade.riskValue}</span></div>
+      <div class="cardRow"><span class="cardLabel">Reward</span><span class="cardValue" style="color:rgb(117,190,8);">${trade.rewardValue}</span></div>
+      <div class="cardRow"><span class="cardLabel">R:R Ratio</span><span class="cardValue" style="color:rgb(117,190,8);">${trade.rrValue}</span></div>
+      <div class="cardRow"><span class="cardLabel">Notes</span><span class="cardValue">${notesDisplay}</span></div>
       <div class="cardActions">
         <button class="btnSave" onclick="saveTrade(${trade.id})">Save Trade</button>
         <button class="btnExport" onclick="exportPDF(${trade.id})">Export PDF</button>
@@ -345,23 +281,15 @@ function updatePerformance(trades) {
   const winRateEl = document.getElementById('winRate');
   const avgRREl = document.getElementById('avgRR');
 
-  const closedTrades = trades.filter(function(t) {
-    return t.outcome === 'Win' || t.outcome === 'Loss';
-  });
-
-  const wins = trades.filter(function(t) {
-    return t.outcome === 'Win';
-  });
+  const closedTrades = trades.filter(function(t) { return t.outcome === 'Win' || t.outcome === 'Loss'; });
+  const wins = trades.filter(function(t) { return t.outcome === 'Win'; });
 
   const winRate = closedTrades.length > 0
-    ? ((wins.length / closedTrades.length) * 100).toFixed(1)
-    : 0;
+    ? ((wins.length / closedTrades.length) * 100).toFixed(1) : 0;
 
   const rrValues = trades
     .map(function(t) {
-      if (t.rrValue && t.rrValue.includes(' : ')) {
-        return parseFloat(t.rrValue.split(' : ')[1]);
-      }
+      if (t.rrValue && t.rrValue.includes(' : ')) return parseFloat(t.rrValue.split(' : ')[1]);
       return null;
     })
     .filter(function(v) { return v !== null && !isNaN(v); });
@@ -389,7 +317,7 @@ function renderHistory() {
   });
 
   if (filtered.length === 0) {
-    historyList.innerHTML = '<p style="color: rgba(255,255,255,0.3); font-size: 13px; padding: 1rem 0; text-align: center;">No trades found.</p>';
+    historyList.innerHTML = '<p style="color:rgba(255,255,255,0.3);font-size:13px;padding:1rem 0;text-align:center;">No trades found.</p>';
     updateTradeCount(trades);
     updatePerformance(trades);
     return;
@@ -399,6 +327,14 @@ function renderHistory() {
 
   const historyHTML = sorted.map(function(trade) {
     const directionDisplay = trade.direction.charAt(0).toUpperCase() + trade.direction.slice(1);
+
+    // Only show the Update button if the trade is still Open
+    // Once a trade is closed (Win/Loss/Breakeven) there is nothing to update
+    // so the button is replaced with a muted "Closed" label instead
+    const updateBtn = trade.outcome === 'Open'
+      ? `<button onclick="openOutcomeUpdate(${trade.id})">Update</button>`
+      : `<span style="flex:1; text-align:center; font-size:11px; color:rgba(255,255,255,0.3); padding:0.3rem 0;">Closed</span>`;
+
     return `
       <div class="historyCard" id="historyCard-${trade.id}">
         <div class="historyCardTop">
@@ -408,11 +344,11 @@ function renderHistory() {
         </div>
         <div class="historyCardMid">
           <span>${trade.dateOpened}</span>
-          <span style="color: rgb(117,190,8);">${trade.rrValue}</span>
+          <span style="color:rgb(117,190,8);">${trade.rrValue}</span>
         </div>
         <div class="historyCardActions">
           <button onclick="viewTrade(${trade.id})">View</button>
-          <button onclick="openOutcomeUpdate(${trade.id})">Update</button>
+          ${updateBtn}
           <button onclick="deleteTrade(${trade.id})">Delete</button>
         </div>
       </div>
@@ -430,8 +366,11 @@ function viewTrade(id) {
   if (trade) {
     renderSummaryCard(trade);
     window.currentTrade = trade;
+    // On tablet: close the overlay after loading the trade
     if (isTablet()) closeHistoryPanel();
-    if (isMobile()) showTradeDetail();
+    // On mobile: viewing a trade does NOT change the back button state
+    // The back button is already visible from when history was opened
+    // so the user can still close the history panel at any time
   }
 }
 
@@ -456,9 +395,15 @@ function openOutcomeUpdate(id) {
   const trade = trades.find(function(t) { return t.id === id; });
   if (!trade) return;
 
+  // Extra guard — if somehow this is called on a closed trade, block it
+  if (trade.outcome !== 'Open') {
+    showToast('This trade is already closed.');
+    return;
+  }
+
   const formHTML = `
     <div class="outcomeForm">
-      <p style="font-size: 11px; color: rgba(255,255,255,0.5); margin-bottom: 4px;">
+      <p style="font-size:11px;color:rgba(255,255,255,0.5);margin-bottom:4px;">
         How did this trade close?
       </p>
       <div class="outcomeButtons">
@@ -475,21 +420,14 @@ function openOutcomeUpdate(id) {
           Breakeven
         </button>
       </div>
-      <div id="breakevenInput-${id}" style="display:none; margin-top:6px;">
-        <input
-          type="number"
-          id="breakevenPrice-${id}"
-          step="any"
-          placeholder="Enter breakeven price"
-        />
+      <div id="breakevenInput-${id}" style="display:none;margin-top:6px;">
+        <input type="number" id="breakevenPrice-${id}" step="any" placeholder="Enter breakeven price" />
         <div class="outcomeFormActions" style="margin-top:6px;">
           <button onclick="confirmBreakeven(${id})">Confirm</button>
           <button onclick="cancelOutcomeUpdate(${id})">Cancel</button>
         </div>
       </div>
-      <button class="keepOpenBtn" onclick="cancelOutcomeUpdate(${id})">
-        Keep Open
-      </button>
+      <button class="keepOpenBtn" onclick="cancelOutcomeUpdate(${id})">Keep Open</button>
     </div>
   `;
   cardEl.insertAdjacentHTML('beforeend', formHTML);
@@ -624,124 +562,70 @@ function exportPDF(id) {
     return;
   }
 
-  // Read the current user name and ID from localStorage
-  // getUserName() returns 'User' as default if no name has been set
-  // getUserId() generates and saves a permanent unique ID on first call
   const userName = getUserName();
   const userId = getUserId();
 
-  const liquidityText = tradeToExport.liquidity.length > 0
-    ? tradeToExport.liquidity.join(', ') : 'None';
-  const confluencesText = tradeToExport.confluences.length > 0
-    ? tradeToExport.confluences.join(', ') : 'None';
-  const directionDisplay = tradeToExport.direction.charAt(0).toUpperCase()
-    + tradeToExport.direction.slice(1);
+  const liquidityText = tradeToExport.liquidity.length > 0 ? tradeToExport.liquidity.join(', ') : 'None';
+  const confluencesText = tradeToExport.confluences.length > 0 ? tradeToExport.confluences.join(', ') : 'None';
+  const directionDisplay = tradeToExport.direction.charAt(0).toUpperCase() + tradeToExport.direction.slice(1);
   const notesDisplay = tradeToExport.notes.trim() !== '' ? tradeToExport.notes : '—';
   const outcomeDisplay = tradeToExport.outcome;
   const dateClosedDisplay = tradeToExport.dateClosed ? tradeToExport.dateClosed : 'Still Open';
-  const exitPriceDisplay = tradeToExport.actualExitPrice !== null
-    ? tradeToExport.actualExitPrice : '—';
+  const exitPriceDisplay = tradeToExport.actualExitPrice !== null ? tradeToExport.actualExitPrice : '—';
 
   const receiptHTML = `
-    <div style="
-      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-      max-width: 600px;
-      margin: 0 auto;
-      padding: 30px;
-      color: #111;
-      background: #fff;
-    ">
-      <div style="border-bottom: 3px solid #111; padding-bottom: 16px; margin-bottom: 20px;">
-        <h1 style="font-size: 20px; font-weight: 800; margin: 0 0 4px 0; letter-spacing: 1px;">
-          SMC TRADE PLAN
-        </h1>
-        <p style="margin: 0; font-size: 13px; color: #555;">
-          Trade Journal — ${userName} &nbsp;|&nbsp; ${userId}
-        </p>
+    <div style="font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;max-width:600px;margin:0 auto;padding:30px;color:#111;background:#fff;">
+      <div style="border-bottom:3px solid #111;padding-bottom:16px;margin-bottom:20px;">
+        <h1 style="font-size:20px;font-weight:800;margin:0 0 4px 0;letter-spacing:1px;">SMC TRADE PLAN</h1>
+        <p style="margin:0;font-size:13px;color:#555;">Trade Journal — ${userName} &nbsp;|&nbsp; ${userId}</p>
       </div>
-
-      <div style="
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        background: #f4f4f4;
-        border-radius: 6px;
-        padding: 12px 16px;
-        margin-bottom: 20px;
-      ">
+      <div style="display:flex;justify-content:space-between;align-items:center;background:#f4f4f4;border-radius:6px;padding:12px 16px;margin-bottom:20px;">
         <div>
-          <p style="margin: 0; font-size: 11px; color: #888; text-transform: uppercase;">Pair</p>
-          <p style="margin: 0; font-size: 20px; font-weight: 800;">${tradeToExport.pair}</p>
+          <p style="margin:0;font-size:11px;color:#888;text-transform:uppercase;">Pair</p>
+          <p style="margin:0;font-size:20px;font-weight:800;">${tradeToExport.pair}</p>
         </div>
-        <div style="text-align: center;">
-          <p style="margin: 0; font-size: 11px; color: #888; text-transform: uppercase;">Direction</p>
-          <p style="margin: 0; font-size: 16px; font-weight: 700;
-            color: ${tradeToExport.direction === 'long' ? '#3a7d0a' : '#b50000'};">
-            ${directionDisplay}
-          </p>
+        <div style="text-align:center;">
+          <p style="margin:0;font-size:11px;color:#888;text-transform:uppercase;">Direction</p>
+          <p style="margin:0;font-size:16px;font-weight:700;color:${tradeToExport.direction === 'long' ? '#3a7d0a' : '#b50000'};">${directionDisplay}</p>
         </div>
-        <div style="text-align: right;">
-          <p style="margin: 0; font-size: 11px; color: #888; text-transform: uppercase;">Outcome</p>
-          <p style="margin: 0; font-size: 16px; font-weight: 700;
-            color: ${
-              outcomeDisplay === 'Win' ? '#3a7d0a' :
-              outcomeDisplay === 'Loss' ? '#b50000' :
-              outcomeDisplay === 'Breakeven' ? '#b07000' : '#555'
-            };">
-            ${outcomeDisplay}
-          </p>
+        <div style="text-align:right;">
+          <p style="margin:0;font-size:11px;color:#888;text-transform:uppercase;">Outcome</p>
+          <p style="margin:0;font-size:16px;font-weight:700;color:${outcomeDisplay === 'Win' ? '#3a7d0a' : outcomeDisplay === 'Loss' ? '#b50000' : outcomeDisplay === 'Breakeven' ? '#b07000' : '#555'};">${outcomeDisplay}</p>
         </div>
       </div>
-
-      <div style="display: flex; justify-content: space-between; margin-bottom: 16px;">
+      <div style="display:flex;justify-content:space-between;margin-bottom:16px;">
         <div>
-          <p style="margin: 0; font-size: 11px; color: #888; text-transform: uppercase;">Date Opened</p>
-          <p style="margin: 0; font-size: 14px; font-weight: 600;">${tradeToExport.dateOpened}</p>
+          <p style="margin:0;font-size:11px;color:#888;text-transform:uppercase;">Date Opened</p>
+          <p style="margin:0;font-size:14px;font-weight:600;">${tradeToExport.dateOpened}</p>
         </div>
-        <div style="text-align: right;">
-          <p style="margin: 0; font-size: 11px; color: #888; text-transform: uppercase;">Date Closed</p>
-          <p style="margin: 0; font-size: 14px; font-weight: 600;">${dateClosedDisplay}</p>
+        <div style="text-align:right;">
+          <p style="margin:0;font-size:11px;color:#888;text-transform:uppercase;">Date Closed</p>
+          <p style="margin:0;font-size:14px;font-weight:600;">${dateClosedDisplay}</p>
         </div>
       </div>
-
-      <div style="border-top: 1px solid #ddd; margin: 16px 0;"></div>
-
-      <h2 style="font-size: 13px; text-transform: uppercase; color: #888; letter-spacing: 1px; margin: 0 0 12px 0;">Analysis</h2>
+      <div style="border-top:1px solid #ddd;margin:16px 0;"></div>
+      <h2 style="font-size:13px;text-transform:uppercase;color:#888;letter-spacing:1px;margin:0 0 12px 0;">Analysis</h2>
       ${buildRow('HTF Timeframe', tradeToExport.htfTimeframe)}
       ${buildRow('LTF Timeframe', tradeToExport.ltfTimeframe)}
       ${buildRow('Bias Direction', tradeToExport.biasDirection)}
       ${buildRow('POI Type', tradeToExport.poiType)}
       ${buildRow('Liquidity Context', liquidityText)}
       ${buildRow('Confluences', confluencesText)}
-
-      <div style="border-top: 1px solid #ddd; margin: 16px 0;"></div>
-
-      <h2 style="font-size: 13px; text-transform: uppercase; color: #888; letter-spacing: 1px; margin: 0 0 12px 0;">Prices</h2>
+      <div style="border-top:1px solid #ddd;margin:16px 0;"></div>
+      <h2 style="font-size:13px;text-transform:uppercase;color:#888;letter-spacing:1px;margin:0 0 12px 0;">Prices</h2>
       ${buildRow('Entry Price', tradeToExport.entryPrice)}
       ${buildRow('Stop Loss', tradeToExport.stopPrice)}
       ${buildRow('Take Profit', tradeToExport.takeProfitPrice)}
       ${buildRow('Actual Exit Price', exitPriceDisplay)}
-
-      <div style="border-top: 1px solid #ddd; margin: 16px 0;"></div>
-
-      <h2 style="font-size: 13px; text-transform: uppercase; color: #888; letter-spacing: 1px; margin: 0 0 12px 0;">Risk & Reward</h2>
+      <div style="border-top:1px solid #ddd;margin:16px 0;"></div>
+      <h2 style="font-size:13px;text-transform:uppercase;color:#888;letter-spacing:1px;margin:0 0 12px 0;">Risk & Reward</h2>
       ${buildRow('Risk', tradeToExport.riskValue, '#b50000')}
       ${buildRow('Reward', tradeToExport.rewardValue, '#3a7d0a')}
       ${buildRow('R:R Ratio', tradeToExport.rrValue, '#3a7d0a')}
-
-      <div style="border-top: 1px solid #ddd; margin: 16px 0;"></div>
-
-      <h2 style="font-size: 13px; text-transform: uppercase; color: #888; letter-spacing: 1px; margin: 0 0 8px 0;">Notes</h2>
-      <p style="font-size: 13px; line-height: 1.6; color: #333; margin: 0;">${notesDisplay}</p>
-
-      <div style="
-        border-top: 2px solid #111;
-        margin-top: 30px;
-        padding-top: 12px;
-        text-align: center;
-        font-size: 11px;
-        color: #aaa;
-      ">
+      <div style="border-top:1px solid #ddd;margin:16px 0;"></div>
+      <h2 style="font-size:13px;text-transform:uppercase;color:#888;letter-spacing:1px;margin:0 0 8px 0;">Notes</h2>
+      <p style="font-size:13px;line-height:1.6;color:#333;margin:0;">${notesDisplay}</p>
+      <div style="border-top:2px solid #111;margin-top:30px;padding-top:12px;text-align:center;font-size:11px;color:#aaa;">
         SMC Trade Setup Checklist &nbsp;|&nbsp; Trade ID: ${tradeToExport.id} &nbsp;|&nbsp; User: ${userId}
       </div>
     </div>
@@ -770,21 +654,15 @@ function exportPDF(id) {
 function buildRow(label, value, color) {
   const valueColor = color || '#111';
   return `
-    <div style="
-      display: flex;
-      justify-content: space-between;
-      padding: 6px 0;
-      border-bottom: 1px solid #f0f0f0;
-      font-size: 13px;
-    ">
-      <span style="color: #666;">${label}</span>
-      <span style="font-weight: 600; color: ${valueColor};">${value}</span>
+    <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #f0f0f0;font-size:13px;">
+      <span style="color:#666;">${label}</span>
+      <span style="font-weight:600;color:${valueColor};">${value}</span>
     </div>
   `;
 }
 
 
-// ── Wire up floating history button and back button ───────────────────────────
+// ── Wire up buttons ───────────────────────────────────────────────────────────
 
 const historyFloatBtn = document.querySelector('.hitoryBtn');
 if (historyFloatBtn) {
@@ -805,6 +683,4 @@ if (backBtnFixed) {
 // ── Initialize on page load ───────────────────────────────────────────────────
 
 renderHistory();
-
-// Check if user name is set — shows welcome modal on first visit
 checkUserName();
