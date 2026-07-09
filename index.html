@@ -4,11 +4,11 @@
     <meta charset="UTF-8" />
     <meta
       name="description"
-      content="Is a platform that help trades become disciplined and consistent in their trading journey"
+      content="EdgeLog — A trade journal for disciplined traders. Plan, track, and review every setup with clarity."
     />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="shortcut icon" href="Favicon.png" type="image/x-icon" />
-    <title>Trade Setup Checklist</title>
+    <link rel="shortcut icon" href="edgelog.icon.png" type="image/x-icon" />
+    <title>EdgeLog | Trade Journal</title>
     <link rel="stylesheet" href="style.css" />
     <link
       rel="stylesheet"
@@ -22,9 +22,19 @@
       <div class="top">
         <div class="historyTopRow">
           <h2>History</h2>
-          <button class="settingsBtn" id="settingsBtn" title="Change name">
-            <i class="fa-solid fa-gear"></i>
-          </button>
+          <div class="historyMenu">
+            <button class="historyMenuBtn" id="historyMenuBtn" title="Menu">
+              <i class="fa-solid fa-bars"></i>
+            </button>
+            <div class="historyDropdown" id="historyDropdown">
+              <button onclick="openSettingsFromMenu()">
+                <i class="fa-solid fa-user-pen"></i> Update Name
+              </button>
+              <button onclick="openReportFromMenu()">
+                <i class="fa-solid fa-file-export"></i> Export Report
+              </button>
+            </div>
+          </div>
         </div>
         <!-- rest of .top stays the same -->
 
@@ -32,12 +42,72 @@
         <div class="historyFilter">
           <select name="filterPair" id="filterPair">
             <option value="all">All</option>
-            <option value="USDJPY">USDJPY</option>
-            <option value="GBPUSD">GBPUSD</option>
-            <option value="XAUUSD">XAUUSD</option>
-            <option value="BTCUSD">BTCUSD</option>
-            <option value="AUDUSD">AUDUSD</option>
-            <option value="NZDCHF">NZDCHF</option>
+            <!-- Forex Majors -->
+            <option value="EURUSD">EUR/USD — Major</option>
+            <option value="USDJPY">USD/JPY — Major</option>
+            <option value="GBPUSD">GBP/USD — Major</option>
+            <option value="USDCHF">USD/CHF — Major</option>
+            <option value="AUDUSD">AUD/USD — Major</option>
+            <option value="USDCAD">USD/CAD — Major</option>
+            <option value="NZDUSD">NZD/USD — Major</option>
+            <!-- Forex Minors -->
+            <option value="EURGBP">EUR/GBP — Minor</option>
+            <option value="EURJPY">EUR/JPY — Minor</option>
+            <option value="GBPJPY">GBP/JPY — Minor</option>
+            <option value="EURAUD">EUR/AUD — Minor</option>
+            <option value="EURCAD">EUR/CAD — Minor</option>
+            <option value="EURCHF">EUR/CHF — Minor</option>
+            <option value="GBPAUD">GBP/AUD — Minor</option>
+            <option value="GBPCAD">GBP/CAD — Minor</option>
+            <option value="GBPCHF">GBP/CHF — Minor</option>
+            <option value="GBPNZD">GBP/NZD — Minor</option>
+            <option value="AUDCAD">AUD/CAD — Minor</option>
+            <option value="AUDCHF">AUD/CHF — Minor</option>
+            <option value="AUDJPY">AUD/JPY — Minor</option>
+            <option value="AUDNZD">AUD/NZD — Minor</option>
+            <option value="CADJPY">CAD/JPY — Minor</option>
+            <option value="CHFJPY">CHF/JPY — Minor</option>
+            <option value="NZDCAD">NZD/CAD — Minor</option>
+            <option value="NZDCHF">NZD/CHF — Minor</option>
+            <option value="NZDJPY">NZD/JPY — Minor</option>
+            <!-- Metals -->
+            <option value="XAUUSD">XAU/USD — Gold</option>
+            <option value="XAGUSD">XAG/USD — Silver</option>
+            <option value="XPTUSD">XPT/USD — Platinum</option>
+            <option value="XPDUSD">XPD/USD — Palladium</option>
+            <option value="XAUEUR">XAU/EUR — Gold/Euro</option>
+            <option value="XAUGBP">XAU/GBP — Gold/GBP</option>
+            <!-- Commodities -->
+            <option value="USOIL">USOIL — WTI Crude</option>
+            <option value="UKOIL">UKOIL — Brent Crude</option>
+            <option value="NATGAS">NATGAS — Natural Gas</option>
+            <option value="CORN">CORN — Corn</option>
+            <option value="WHEAT">WHEAT — Wheat</option>
+            <option value="SOYBEAN">SOYBEAN — Soybean</option>
+            <option value="COFFEE">COFFEE — Coffee</option>
+            <option value="COTTON">COTTON — Cotton</option>
+            <option value="SUGAR">SUGAR — Sugar</option>
+            <!-- Indices -->
+            <option value="US30">US30 — Dow Jones</option>
+            <option value="NAS100">NAS100 — Nasdaq</option>
+            <option value="SPX500">SPX500 — S&P 500</option>
+            <option value="UK100">UK100 — FTSE 100</option>
+            <option value="GER40">GER40 — DAX</option>
+            <option value="FRA40">FRA40 — CAC 40</option>
+            <option value="JP225">JP225 — Nikkei</option>
+            <option value="AUS200">AUS200 — ASX 200</option>
+            <option value="HK50">HK50 — Hang Seng</option>
+            <!-- Crypto -->
+            <option value="BTCUSD">BTC/USD — Bitcoin</option>
+            <option value="ETHUSD">ETH/USD — Ethereum</option>
+            <option value="BNBUSD">BNB/USD — Binance Coin</option>
+            <option value="SOLUSD">SOL/USD — Solana</option>
+            <option value="XRPUSD">XRP/USD — Ripple</option>
+            <option value="ADAUSD">ADA/USD — Cardano</option>
+            <option value="DOGEUSD">DOGE/USD — Dogecoin</option>
+            <option value="LTCUSD">LTC/USD — Litecoin</option>
+            <option value="LINKUSD">LINK/USD — Chainlink</option>
+            <option value="DOTUSD">DOT/USD — Polkadot</option>
           </select>
 
           <select name="filterOutcome" id="filterOutcome">
@@ -65,7 +135,9 @@
     <!-- Header & Trading Plan Section -->
     <section class="tradePlan">
       <header class="pageHeader">
-        <h1>Trade Setup Checklist</h1>
+        <div class="logo">
+          <img src="edgelog.logo.jpg" alt="" />
+        </div>
         <p>Plan every trade with discipline before you enter.</p>
       </header>
 
@@ -75,15 +147,83 @@
           <legend>Pair and Direction</legend>
 
           <label for="pair">Currency Pair</label>
-          <select id="pair" name="pair" required>
-            <option value="" disabled selected>Select pair</option>
-            <option value="USDJPY">USD/JPY</option>
-            <option value="GBPUSD">GBP/USD</option>
-            <option value="XAUUSD">XAU/USD</option>
-            <option value="BTCUSD">BTC/USD</option>
-            <option value="AUDUSD">AUD/USD</option>
-            <option value="NZDCHF">NZD/CHF</option>
-          </select>
+          <input
+            type="text"
+            id="pair"
+            name="pair"
+            list="pairList"
+            placeholder="Type to search e.g. EURUSD"
+            autocomplete="off"
+            required
+          />
+          <datalist id="pairList">
+            <!-- Forex Majors -->
+            <option value="EURUSD">EUR/USD — Major</option>
+            <option value="USDJPY">USD/JPY — Major</option>
+            <option value="GBPUSD">GBP/USD — Major</option>
+            <option value="USDCHF">USD/CHF — Major</option>
+            <option value="AUDUSD">AUD/USD — Major</option>
+            <option value="USDCAD">USD/CAD — Major</option>
+            <option value="NZDUSD">NZD/USD — Major</option>
+            <!-- Forex Minors -->
+            <option value="EURGBP">EUR/GBP — Minor</option>
+            <option value="EURJPY">EUR/JPY — Minor</option>
+            <option value="GBPJPY">GBP/JPY — Minor</option>
+            <option value="EURAUD">EUR/AUD — Minor</option>
+            <option value="EURCAD">EUR/CAD — Minor</option>
+            <option value="EURCHF">EUR/CHF — Minor</option>
+            <option value="GBPAUD">GBP/AUD — Minor</option>
+            <option value="GBPCAD">GBP/CAD — Minor</option>
+            <option value="GBPCHF">GBP/CHF — Minor</option>
+            <option value="GBPNZD">GBP/NZD — Minor</option>
+            <option value="AUDCAD">AUD/CAD — Minor</option>
+            <option value="AUDCHF">AUD/CHF — Minor</option>
+            <option value="AUDJPY">AUD/JPY — Minor</option>
+            <option value="AUDNZD">AUD/NZD — Minor</option>
+            <option value="CADJPY">CAD/JPY — Minor</option>
+            <option value="CHFJPY">CHF/JPY — Minor</option>
+            <option value="NZDCAD">NZD/CAD — Minor</option>
+            <option value="NZDCHF">NZD/CHF — Minor</option>
+            <option value="NZDJPY">NZD/JPY — Minor</option>
+            <!-- Metals -->
+            <option value="XAUUSD">XAU/USD — Gold</option>
+            <option value="XAGUSD">XAG/USD — Silver</option>
+            <option value="XPTUSD">XPT/USD — Platinum</option>
+            <option value="XPDUSD">XPD/USD — Palladium</option>
+            <option value="XAUEUR">XAU/EUR — Gold/Euro</option>
+            <option value="XAUGBP">XAU/GBP — Gold/GBP</option>
+            <!-- Commodities -->
+            <option value="USOIL">USOIL — WTI Crude</option>
+            <option value="UKOIL">UKOIL — Brent Crude</option>
+            <option value="NATGAS">NATGAS — Natural Gas</option>
+            <option value="CORN">CORN — Corn</option>
+            <option value="WHEAT">WHEAT — Wheat</option>
+            <option value="SOYBEAN">SOYBEAN — Soybean</option>
+            <option value="COFFEE">COFFEE — Coffee</option>
+            <option value="COTTON">COTTON — Cotton</option>
+            <option value="SUGAR">SUGAR — Sugar</option>
+            <!-- Indices -->
+            <option value="US30">US30 — Dow Jones</option>
+            <option value="NAS100">NAS100 — Nasdaq</option>
+            <option value="SPX500">SPX500 — S&P 500</option>
+            <option value="UK100">UK100 — FTSE 100</option>
+            <option value="GER40">GER40 — DAX</option>
+            <option value="FRA40">FRA40 — CAC 40</option>
+            <option value="JP225">JP225 — Nikkei</option>
+            <option value="AUS200">AUS200 — ASX 200</option>
+            <option value="HK50">HK50 — Hang Seng</option>
+            <!-- Crypto -->
+            <option value="BTCUSD">BTC/USD — Bitcoin</option>
+            <option value="ETHUSD">ETH/USD — Ethereum</option>
+            <option value="BNBUSD">BNB/USD — Binance Coin</option>
+            <option value="SOLUSD">SOL/USD — Solana</option>
+            <option value="XRPUSD">XRP/USD — Ripple</option>
+            <option value="ADAUSD">ADA/USD — Cardano</option>
+            <option value="DOGEUSD">DOGE/USD — Dogecoin</option>
+            <option value="LTCUSD">LTC/USD — Litecoin</option>
+            <option value="LINKUSD">LINK/USD — Chainlink</option>
+            <option value="DOTUSD">DOT/USD — Polkadot</option>
+          </datalist>
 
           <label>Direction</label>
           <div class="radioGroup">
@@ -250,6 +390,38 @@
           ></textarea>
         </fieldset>
 
+        <!-- Chart Screenshots -->
+        <fieldset class="formGroup">
+          <legend>Chart Screenshots</legend>
+
+          <label>HTF Chart</label>
+          <div class="imageUploadSlot" id="slot-htf">
+            <input type="file" id="imgHtf" accept="image/*" />
+            <label for="imgHtf" class="uploadLabel">
+              <i class="fa-solid fa-image"></i> Upload HTF Chart
+            </label>
+            <div class="imgPreview" id="previewHtf"></div>
+          </div>
+
+          <label>LTF Entry Chart</label>
+          <div class="imageUploadSlot" id="slot-ltf">
+            <input type="file" id="imgLtf" accept="image/*" />
+            <label for="imgLtf" class="uploadLabel">
+              <i class="fa-solid fa-image"></i> Upload LTF Chart
+            </label>
+            <div class="imgPreview" id="previewLtf"></div>
+          </div>
+
+          <label>Post-Trade Screenshot</label>
+          <div class="imageUploadSlot" id="slot-post">
+            <input type="file" id="imgPost" accept="image/*" />
+            <label for="imgPost" class="uploadLabel">
+              <i class="fa-solid fa-image"></i> Upload Post-Trade
+            </label>
+            <div class="imgPreview" id="previewPost"></div>
+          </div>
+        </fieldset>
+
         <button type="submit" id="generateBtn">Generate Trade Plan</button>
       </form>
     </section>
@@ -281,15 +453,31 @@
     <!-- Username modal -->
     <div class="nameModal" id="nameModal">
       <div class="nameModalBox">
-        <h3>Welcome to SMC Checklist</h3>
+        <h3>Welcome to EdgeLog</h3>
         <p>Enter your name to personalise your trade receipts.</p>
         <input
           type="text"
           id="nameInput"
-          placeholder="e.g. Emmy"
+          placeholder="e.g. User"
           maxlength="40"
         />
         <button id="saveNameBtn">Get Started</button>
+      </div>
+    </div>
+    <!-- Bulk export report modal -->
+    <div class="reportModal" id="reportModal">
+      <div class="reportModalBox">
+        <h3>Export Trade Report</h3>
+        <p>Select the period you want to export.</p>
+        <div class="reportOptions">
+          <button onclick="exportReport('week')">This Week</button>
+          <button onclick="exportReport('month')">This Month</button>
+          <button onclick="exportReport('year')">This Year</button>
+          <button onclick="exportReport('all')">All Time</button>
+        </div>
+        <button class="reportCancelBtn" onclick="closeReportModal()">
+          Cancel
+        </button>
       </div>
     </div>
     <div id="toast" class="toast"></div>
