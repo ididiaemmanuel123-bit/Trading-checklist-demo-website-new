@@ -29,9 +29,9 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    position: relative;
     padding: 1rem 1.5rem;
     border-bottom: 2px solid rgba(255,255,255,0.15);
+    position: relative;
 }
 
 .historyTopRow h2 {
@@ -40,23 +40,74 @@ body {
     padding: 0;
 }
 
-.settingsBtn {
-    position: absolute;
-    right: 1.5rem;
+.historyMenu {
+    position: relative;
+    left: 100px;
+}
+
+.historyMenuBtn {
     background: none;
     border: none;
     color: rgba(255,255,255,0.4);
-    font-size: 14px;
+    font-size: 16px;
     cursor: pointer;
-    padding: 0.3rem;
+    padding: 0.3rem 0.5rem;
     width: auto;
     margin: 0;
     transition: 0.2s ease;
+    border-radius: 4px;
 }
 
-.settingsBtn:hover {
+.historyMenuBtn:hover {
     color: white;
+    background: rgba(255,255,255,0.06);
+}
+
+.historyDropdown {
+    display: none;
+    position: absolute;
+    top: calc(100% + 6px);
+    right: 0;
+    background: #0a0010;
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 8px;
+    overflow: hidden;
+    z-index: 2000;
+    min-width: 170px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+}
+
+.historyDropdown.open {
+    display: block;
+}
+
+.historyDropdown button {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    padding: 0.7rem 1rem;
     background: none;
+    border: none;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+    color: rgba(255,255,255,0.7);
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    text-align: left;
+    transition: 0.2s ease;
+    border-radius: 0;
+    margin: 0;
+    font-family: Montserrat;
+}
+
+.historyDropdown button:last-child {
+    border-bottom: none;
+}
+
+.historyDropdown button:hover {
+    background: rgba(98,0,234,0.15);
+    color: white;
 }
 
 /* Name modal */
@@ -112,7 +163,7 @@ body {
 .nameModalBox button {
     width: 100%;
     padding: 0.6rem 1rem;
-    background: purple;
+    background: rgb(65,0,65);
     color: white;
     border: none;
     border-radius: 6px;
@@ -124,7 +175,7 @@ body {
 }
 
 .nameModalBox button:hover {
-    background: rgb(65,0,65);
+    background: #3d0091;
 }
 
 .historySection h2 {
@@ -276,12 +327,12 @@ body {
 }
 
 .outcomeFormActions button:first-child {
-    background: purple;
+    background: #6200ea;
     color: white;
 }
 
 .outcomeFormActions button:first-child:hover {
-    background: rgb(65,0,65);
+    background: #3d0091;
 }
 
 .outcomeFormActions button:last-child {
@@ -347,11 +398,14 @@ body {
     border-bottom: 2px solid rgba(255,255,255,0.15);
 }
 
-.tradePlan .pageHeader h1{
-    font-size: 22px;
-    font-weight: 600;
-    margin-bottom: 0.5rem;
-    text-align: center;
+.tradePlan .pageHeader .logo{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.tradePlan .pageHeader .logo img {
+    width: 200px;
 }
 
 .tradePlan .pageHeader p{ 
@@ -438,12 +492,106 @@ body {
     font-family: Montserrat;
 }
 
+/* ── Image Upload Slots ─────────────────────────────────── */
+
+.imageUploadSlot {
+    margin-bottom: 0.8rem;
+}
+
+.imageUploadSlot input[type="file"] {
+    display: none;
+}
+
+.uploadLabel {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0.5rem 0.8rem;
+    background: rgba(255,255,255,0.05);
+    border: 1px dashed rgba(255,255,255,0.2);
+    border-radius: 6px;
+    font-size: 12px;
+    color: rgba(255,255,255,0.5);
+    cursor: pointer;
+    transition: 0.2s ease;
+    margin-top: 0;
+    margin-bottom: 0.4rem;
+    width: 100%;
+    font-weight: 500;
+}
+
+.uploadLabel:hover {
+    background: rgba(255,255,255,0.08);
+    color: white;
+    border-color: rgba(255,255,255,0.35);
+}
+
+.imgPreview {
+    display: none;
+    position: relative;
+    border-radius: 6px;
+    overflow: hidden;
+    border: 1px solid rgba(255,255,255,0.1);
+}
+
+.imgPreview img {
+    width: 100%;
+    display: block;
+    max-height: 160px;
+    object-fit: cover;
+    border-radius: 6px;
+}
+
+.imgPreview .removeImg {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    background: rgba(0,0,0,0.7);
+    border: none;
+    color: white;
+    border-radius: 4px;
+    padding: 0.2rem 0.4rem;
+    font-size: 11px;
+    cursor: pointer;
+    transition: 0.2s ease;
+    width: auto;
+    margin: 0;
+}
+
+.imgPreview .removeImg:hover {
+    background: rgba(180,0,0,0.8);
+}
+
+/* Summary card image section */
+.summaryCard .cardImages {
+    margin-top: 0.8rem;
+    padding-top: 0.8rem;
+    border-top: 1px solid rgba(255,255,255,0.08);
+}
+
+.summaryCard .cardImages p {
+    font-size: 12px;
+    color: rgba(255,255,255,0.4);
+    margin-bottom: 0.5rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.summaryCard .cardImages img {
+    width: 100%;
+    border-radius: 6px;
+    margin-bottom: 0.5rem;
+    border: 1px solid rgba(255,255,255,0.08);
+    object-fit: cover;
+    max-height: 180px;
+}
+
 .tradePlan button {
     width: 100%;
     padding: 0.5rem 1rem;
     border: none;
     border-radius: 5px;
-    background: purple;
+    background: #6200ea;
     color: white;
     font-weight: 600;
     cursor: pointer;
@@ -452,7 +600,7 @@ body {
 }
 
 .tradePlan button:hover {
-    background: rgb(65, 0, 65);
+    background:#3d0091;
 }
 
 
@@ -572,8 +720,8 @@ body {
     transition: 0.3s ease;
 }
 
-.summaryCard .btnSave { background: purple; color: white; }
-.summaryCard .btnSave:hover { background: rgb(65,0,65); }
+.summaryCard .btnSave { background: #6200ea; color: white; }
+.summaryCard .btnSave:hover { background: #3d0091; }
 .summaryCard .btnExport { background: rgba(255,255,255,0.1); color: white; }
 .summaryCard .btnExport:hover { background: rgba(255,255,255,0.2); }
 
@@ -633,12 +781,17 @@ body {
     border: none;
     border-radius: 50%;
     color: white;
-    background:  linear-gradient(to bottom, rgba(231, 231, 231, 0.192) 25%, rgba(0, 0, 0, 0.966) 100%);
-    box-shadow: 0 0 15px rgba(0, 0, 0, 0.329);
+    background:  #6200ea;
+    box-shadow: 0 0 15px rgba(59, 59, 59, 0.329);
     cursor: pointer;
     left: 90%;
     top: 85%;
+    transition: 0.3s ease;
 } 
+
+.hitoryBtn:hover {
+    background:  #3d0091;
+}
 
 /* Back button — fixed, only visible on mobile when viewing a trade */
 .backBtn-fixed {
@@ -660,6 +813,84 @@ body {
     display: flex;
     align-items: center;
     gap: 6px;
+}
+
+.reportModal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.85);
+    z-index: 9000;
+    align-items: center;
+    justify-content: center;
+}
+
+.reportModal.open { display: flex; }
+
+.reportModalBox {
+    background: #0a0010;
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 12px;
+    padding: 2rem;
+    width: 300px;
+    text-align: center;
+}
+
+.reportModalBox h3 {
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+.reportModalBox p {
+    font-size: 13px;
+    color: rgba(255,255,255,0.5);
+    margin-bottom: 1.2rem;
+}
+
+.reportOptions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 0.8rem;
+}
+
+.reportOptions button {
+    padding: 0.6rem 0.5rem;
+    background: rgba(98,0,234,0.15);
+    border: 1px solid rgba(98,0,234,0.4);
+    color: white;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.2s ease;
+    margin: 0;
+    width: 100%;
+}
+
+.reportOptions button:hover {
+    background: #6200ea;
+    border-color: #6200ea;
+}
+
+.reportCancelBtn {
+    width: 100%;
+    padding: 0.5rem;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    color: rgba(255,255,255,0.4);
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.2s ease;
+    margin: 0;
+}
+
+.reportCancelBtn:hover {
+    background: rgba(255,255,255,0.1);
+    color: white;
 }
 
 /* Table Screen */
@@ -721,6 +952,10 @@ body {
         position: fixed;
         width: 100%;
         z-index: 1000;
+    }
+
+    .historyOverlay {
+        background: rgb(0,0,0);
     }
 
     .hitoryBtn {
