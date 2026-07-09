@@ -1,686 +1,977 @@
-// ── USER NAME SYSTEM ──────────────────────────────────────────────────────────
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
 
-const USER_NAME_KEY = 'smcUserName';
-const USER_ID_KEY = 'smcUserId';
-
-function generateUserId() {
-  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-  let id = 'USR-';
-  for (var i = 0; i < 6; i++) {
-    id += chars.charAt(Math.floor(Math.random() * chars.length));
-  }
-  return id;
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
 }
 
-function getUserName() {
-  return localStorage.getItem(USER_NAME_KEY) || 'User';
+body {
+    min-height: 100vh;
+    width: 100%;
+    display: flex;
+    font-family: Montserrat;
+    background: linear-gradient(to bottom, rgba(0, 0, 0, 0.822), black);
+    color: white;
 }
 
-function getUserId() {
-  var id = localStorage.getItem(USER_ID_KEY);
-  if (!id) {
-    id = generateUserId();
-    localStorage.setItem(USER_ID_KEY, id);
-  }
-  return id;
+/* History styling */
+.historySection{
+    width: 25%;
+    height: 100vh;
+    overflow-y: auto;
+    border-right: 2px solid rgba(255,255,255,0.15);    
+    scrollbar-width: none;
 }
 
-function checkUserName() {
-  const saved = localStorage.getItem(USER_NAME_KEY);
-  if (!saved) {
-    openNameModal();
-  }
+/* History top row with settings button */
+.historyTopRow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem 1.5rem;
+    border-bottom: 2px solid rgba(255,255,255,0.15);
+    position: relative;
 }
 
-function openNameModal() {
-  const modal = document.getElementById('nameModal');
-  if (modal) modal.classList.add('open');
-  setTimeout(function() {
-    const input = document.getElementById('nameInput');
-    if (input) input.focus();
-  }, 100);
+.historyTopRow h2 {
+    font-weight: 500;
+    border-bottom: none;
+    padding: 0;
 }
 
-function closeNameModal() {
-  const modal = document.getElementById('nameModal');
-  if (modal) modal.classList.remove('open');
+.historyMenu {
+    position: relative;
+    left: 100px;
 }
 
-function saveUserName() {
-  const input = document.getElementById('nameInput');
-  const name = input.value.trim();
-  const finalName = name !== '' ? name : 'User';
-  localStorage.setItem(USER_NAME_KEY, finalName);
-  closeNameModal();
-  showToast('Welcome, ' + finalName + '!');
+.historyMenuBtn {
+    background: none;
+    border: none;
+    color: rgba(255,255,255,0.4);
+    font-size: 16px;
+    cursor: pointer;
+    padding: 0.3rem 0.5rem;
+    width: auto;
+    margin: 0;
+    transition: 0.2s ease;
+    border-radius: 4px;
 }
 
-document.getElementById('saveNameBtn').addEventListener('click', saveUserName);
-
-document.getElementById('nameInput').addEventListener('keydown', function(e) {
-  if (e.key === 'Enter') saveUserName();
-});
-
-document.getElementById('settingsBtn').addEventListener('click', function() {
-  const input = document.getElementById('nameInput');
-  input.value = getUserName();
-  document.getElementById('saveNameBtn').textContent = 'Update Name';
-  document.querySelector('.nameModalBox h3').textContent = 'Update Your Name';
-  document.querySelector('.nameModalBox p').textContent = 'Change the name that appears on your trade receipts.';
-  openNameModal();
-});
-
-
-// ── TOAST NOTIFICATION ────────────────────────────────────────────────────────
-function showToast(message) {
-  const toast = document.getElementById('toast');
-  toast.textContent = message;
-  toast.classList.add('show');
-  setTimeout(function() {
-    toast.classList.remove('show');
-  }, 3000);
+.historyMenuBtn:hover {
+    color: white;
+    background: rgba(255,255,255,0.06);
 }
 
-
-// ── MOBILE / TABLET HELPERS ───────────────────────────────────────────────────
-
-function isMobile() {
-  return window.innerWidth <= 460;
+.historyDropdown {
+    display: none;
+    position: absolute;
+    top: calc(100% + 6px);
+    right: 0;
+    background: #0a0010;
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 8px;
+    overflow: hidden;
+    z-index: 2000;
+    min-width: 170px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.5);
 }
 
-function isTablet() {
-  return window.innerWidth <= 960 && window.innerWidth > 460;
+.historyDropdown.open {
+    display: block;
 }
 
-// Show the back button — now called when history OPENS on mobile
-// so the user can always close the panel, not just after viewing a trade
-function showBackBtn() {
-  const btn = document.getElementById('backBtnFixed');
-  if (btn) btn.classList.add('visible');
+.historyDropdown button {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    padding: 0.7rem 1rem;
+    background: none;
+    border: none;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+    color: rgba(255,255,255,0.7);
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    text-align: left;
+    transition: 0.2s ease;
+    border-radius: 0;
+    margin: 0;
+    font-family: Montserrat;
 }
 
-// Hide the back button — called when history CLOSES
-function hideBackBtn() {
-  const btn = document.getElementById('backBtnFixed');
-  if (btn) btn.classList.remove('visible');
+.historyDropdown button:last-child {
+    border-bottom: none;
 }
 
-// Open the history panel
-// On mobile: also shows the back button immediately so user can close history
-function openHistoryPanel() {
-  const historySection = document.getElementById('historySection');
-  const overlay = document.getElementById('historyOverlay');
-  historySection.classList.add('open');
-  if (overlay) overlay.classList.add('open');
-
-  // Show back button as soon as history opens on mobile
-  // This lets user close history at any point, not just after viewing a trade
-  if (isMobile()) {
-    showBackBtn();
-  }
+.historyDropdown button:hover {
+    background: rgba(98,0,234,0.15);
+    color: white;
 }
 
-// Close the history panel
-// Hides the back button since the history is now closed
-function closeHistoryPanel() {
-  const historySection = document.getElementById('historySection');
-  const overlay = document.getElementById('historyOverlay');
-  historySection.classList.remove('open');
-  if (overlay) overlay.classList.remove('open');
-  hideBackBtn();
+/* Name modal */
+.nameModal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.85);
+    z-index: 9000;
+    align-items: center;
+    justify-content: center;
 }
 
-// Back button handler — simply closes the history panel
-// The back button is now purely a "close history" button on mobile
-function handleBackBtn() {
-  closeHistoryPanel();
+.nameModal.open {
+    display: flex;
 }
 
-
-// ── STAGE 4: Live Risk/Reward Calculation ─────────────────────────────────────
-
-const entryInput = document.getElementById('entryPrice');
-const stopInput = document.getElementById('stopPrice');
-const takeProfitInput = document.getElementById('takeProfitPrice');
-
-const riskSpan = document.getElementById('riskValue');
-const rewardSpan = document.getElementById('rewardValue');
-const rrSpan = document.getElementById('rrValue');
-
-function calculateRR() {
-  const entry = parseFloat(entryInput.value);
-  const stop = parseFloat(stopInput.value);
-  const tp = parseFloat(takeProfitInput.value);
-  const directionInput = document.querySelector('[name="direction"]:checked');
-  const direction = directionInput ? directionInput.value : null;
-
-  if (isNaN(entry) || isNaN(stop) || isNaN(tp) || !direction) {
-    riskSpan.textContent = '--';
-    rewardSpan.textContent = '--';
-    rrSpan.textContent = '--';
-    return;
-  }
-
-  let risk;
-  let reward;
-
-  if (direction === 'long') {
-    risk = entry - stop;
-    reward = tp - entry;
-  } else if (direction === 'short') {
-    risk = stop - entry;
-    reward = entry - tp;
-  }
-
-  if (risk <= 0 || reward <= 0) {
-    riskSpan.textContent = 'Invalid';
-    rewardSpan.textContent = 'Invalid';
-    rrSpan.textContent = 'Check prices';
-    riskSpan.style.color = 'red';
-    rewardSpan.style.color = 'red';
-    rrSpan.style.color = 'red';
-    return;
-  }
-
-  const ratio = (reward / risk).toFixed(2);
-  riskSpan.textContent = risk.toFixed(5);
-  rewardSpan.textContent = reward.toFixed(5);
-  rrSpan.textContent = '1 : ' + ratio;
-  riskSpan.style.color = 'red';
-  rewardSpan.style.color = 'rgb(117, 190, 8)';
-  rrSpan.style.color = 'rgb(117, 190, 8)';
+.nameModalBox {
+    background: #0a0010;
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 12px;
+    padding: 2rem;
+    width: 320px;
+    text-align: center;
 }
 
-entryInput.addEventListener('input', calculateRR);
-stopInput.addEventListener('input', calculateRR);
-takeProfitInput.addEventListener('input', calculateRR);
-document.querySelectorAll('[name="direction"]').forEach(function(radio) {
-  radio.addEventListener('change', calculateRR);
-});
-
-
-// ── STAGE 5: Render Summary Card ──────────────────────────────────────────────
-
-const summaryOutput = document.getElementById('summaryOutput');
-
-function renderSummaryCard(trade) {
-  const liquidityText = trade.liquidity.length > 0 ? trade.liquidity.join(', ') : 'None';
-  const confluencesText = trade.confluences.length > 0 ? trade.confluences.join(', ') : 'None';
-  const directionDisplay = trade.direction.charAt(0).toUpperCase() + trade.direction.slice(1);
-  const notesDisplay = trade.notes.trim() !== '' ? trade.notes : '—';
-
-  const exitPriceRow = trade.actualExitPrice !== null
-    ? `<div class="cardRow">
-        <span class="cardLabel">Actual Exit Price</span>
-        <span class="cardValue">${trade.actualExitPrice}</span>
-       </div>` : '';
-
-  const dateClosedRow = trade.dateClosed !== null
-    ? `<div class="cardRow">
-        <span class="cardLabel">Date Closed</span>
-        <span class="cardValue">${trade.dateClosed}</span>
-       </div>` : '';
-
-  const cardHTML = `
-    <div class="summaryCard" id="summaryCard-${trade.id}">
-      <div class="cardTitle">
-        Trade Plan — ${trade.pair}
-        <span class="badge ${trade.direction}">${directionDisplay}</span>
-      </div>
-      <div class="cardRow"><span class="cardLabel">Date Opened</span><span class="cardValue">${trade.dateOpened}</span></div>
-      ${dateClosedRow}
-      <div class="cardRow">
-        <span class="cardLabel">Outcome</span>
-        <span class="cardValue"><span class="badge ${trade.outcome.toLowerCase()}">${trade.outcome}</span></span>
-      </div>
-      <div class="cardRow"><span class="cardLabel">HTF Timeframe</span><span class="cardValue">${trade.htfTimeframe}</span></div>
-      <div class="cardRow"><span class="cardLabel">LTF Timeframe</span><span class="cardValue">${trade.ltfTimeframe}</span></div>
-      <div class="cardRow"><span class="cardLabel">Bias</span><span class="cardValue">${trade.biasDirection}</span></div>
-      <div class="cardRow"><span class="cardLabel">POI Type</span><span class="cardValue">${trade.poiType}</span></div>
-      <div class="cardRow"><span class="cardLabel">Liquidity</span><span class="cardValue">${liquidityText}</span></div>
-      <div class="cardRow"><span class="cardLabel">Confluences</span><span class="cardValue">${confluencesText}</span></div>
-      <div class="cardRow"><span class="cardLabel">Entry Price</span><span class="cardValue">${trade.entryPrice}</span></div>
-      <div class="cardRow"><span class="cardLabel">Stop Loss</span><span class="cardValue">${trade.stopPrice}</span></div>
-      <div class="cardRow"><span class="cardLabel">Take Profit</span><span class="cardValue">${trade.takeProfitPrice}</span></div>
-      ${exitPriceRow}
-      <div class="cardRow"><span class="cardLabel">Risk</span><span class="cardValue" style="color:red;">${trade.riskValue}</span></div>
-      <div class="cardRow"><span class="cardLabel">Reward</span><span class="cardValue" style="color:rgb(117,190,8);">${trade.rewardValue}</span></div>
-      <div class="cardRow"><span class="cardLabel">R:R Ratio</span><span class="cardValue" style="color:rgb(117,190,8);">${trade.rrValue}</span></div>
-      <div class="cardRow"><span class="cardLabel">Notes</span><span class="cardValue">${notesDisplay}</span></div>
-      <div class="cardActions">
-        <button class="btnSave" onclick="saveTrade(${trade.id})">Save Trade</button>
-        <button class="btnExport" onclick="exportPDF(${trade.id})">Export PDF</button>
-      </div>
-    </div>
-  `;
-
-  summaryOutput.innerHTML = cardHTML;
+.nameModalBox h3 {
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
 }
 
-
-// ── STAGE 6: localStorage ─────────────────────────────────────────────────────
-
-const STORAGE_KEY = 'smcTrades';
-
-function loadTrades() {
-  const saved = localStorage.getItem(STORAGE_KEY);
-  return saved ? JSON.parse(saved) : [];
+.nameModalBox p {
+    font-size: 13px;
+    color: rgba(255,255,255,0.5);
+    margin-bottom: 1.2rem;
 }
 
-function saveAllTrades(trades) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(trades));
+.nameModalBox input {
+    width: 100%;
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 6px;
+    color: white;
+    font-family: Montserrat;
+    font-size: 14px;
+    padding: 0.6rem 1rem;
+    outline: none;
+    margin-bottom: 1rem;
+    text-align: center;
 }
 
-function updateTradeCount(trades) {
-  const countEl = document.getElementById('tradeCount');
-  countEl.textContent = trades.length + ' trade' + (trades.length !== 1 ? 's' : '') + ' saved';
+.nameModalBox button {
+    width: 100%;
+    padding: 0.6rem 1rem;
+    background: rgb(65,0,65);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: 0.2s ease;
+    margin: 0;
 }
 
-function updatePerformance(trades) {
-  const totalEl = document.getElementById('totalTrades');
-  const winRateEl = document.getElementById('winRate');
-  const avgRREl = document.getElementById('avgRR');
-
-  const closedTrades = trades.filter(function(t) { return t.outcome === 'Win' || t.outcome === 'Loss'; });
-  const wins = trades.filter(function(t) { return t.outcome === 'Win'; });
-
-  const winRate = closedTrades.length > 0
-    ? ((wins.length / closedTrades.length) * 100).toFixed(1) : 0;
-
-  const rrValues = trades
-    .map(function(t) {
-      if (t.rrValue && t.rrValue.includes(' : ')) return parseFloat(t.rrValue.split(' : ')[1]);
-      return null;
-    })
-    .filter(function(v) { return v !== null && !isNaN(v); });
-
-  const avgRR = rrValues.length > 0
-    ? (rrValues.reduce(function(sum, v) { return sum + v; }, 0) / rrValues.length).toFixed(2)
-    : '--';
-
-  totalEl.textContent = trades.length;
-  winRateEl.textContent = winRate + '%';
-  avgRREl.textContent = avgRR !== '--' ? '1 : ' + avgRR : '--';
+.nameModalBox button:hover {
+    background: #3d0091;
 }
 
-function renderHistory() {
-  const trades = loadTrades();
-  const historyList = document.getElementById('historyList');
-
-  const pairFilter = document.getElementById('filterPair').value;
-  const outcomeFilter = document.getElementById('filterOutcome').value;
-
-  const filtered = trades.filter(function(trade) {
-    const pairMatch = pairFilter === 'all' || trade.pair === pairFilter;
-    const outcomeMatch = outcomeFilter === 'all' || trade.outcome === outcomeFilter;
-    return pairMatch && outcomeMatch;
-  });
-
-  if (filtered.length === 0) {
-    historyList.innerHTML = '<p style="color:rgba(255,255,255,0.3);font-size:13px;padding:1rem 0;text-align:center;">No trades found.</p>';
-    updateTradeCount(trades);
-    updatePerformance(trades);
-    return;
-  }
-
-  const sorted = filtered.slice().sort(function(a, b) { return b.id - a.id; });
-
-  const historyHTML = sorted.map(function(trade) {
-    const directionDisplay = trade.direction.charAt(0).toUpperCase() + trade.direction.slice(1);
-
-    // Only show the Update button if the trade is still Open
-    // Once a trade is closed (Win/Loss/Breakeven) there is nothing to update
-    // so the button is replaced with a muted "Closed" label instead
-    const updateBtn = trade.outcome === 'Open'
-      ? `<button onclick="openOutcomeUpdate(${trade.id})">Update</button>`
-      : `<span style="flex:1; text-align:center; font-size:11px; color:rgba(255,255,255,0.3); padding:0.3rem 0;">Closed</span>`;
-
-    return `
-      <div class="historyCard" id="historyCard-${trade.id}">
-        <div class="historyCardTop">
-          <span class="historyPair">${trade.pair}</span>
-          <span class="badge ${trade.direction}">${directionDisplay}</span>
-          <span class="badge ${trade.outcome.toLowerCase()}">${trade.outcome}</span>
-        </div>
-        <div class="historyCardMid">
-          <span>${trade.dateOpened}</span>
-          <span style="color:rgb(117,190,8);">${trade.rrValue}</span>
-        </div>
-        <div class="historyCardActions">
-          <button onclick="viewTrade(${trade.id})">View</button>
-          ${updateBtn}
-          <button onclick="deleteTrade(${trade.id})">Delete</button>
-        </div>
-      </div>
-    `;
-  }).join('');
-
-  historyList.innerHTML = historyHTML;
-  updateTradeCount(trades);
-  updatePerformance(trades);
+.historySection h2 {
+    text-align: center;
+    font-weight: 500;
 }
 
-function viewTrade(id) {
-  const trades = loadTrades();
-  const trade = trades.find(function(t) { return t.id === id; });
-  if (trade) {
-    renderSummaryCard(trade);
-    window.currentTrade = trade;
-    // On tablet: close the overlay after loading the trade
-    if (isTablet()) closeHistoryPanel();
-    // On mobile: viewing a trade does NOT change the back button state
-    // The back button is already visible from when history was opened
-    // so the user can still close the history panel at any time
-  }
+.historySection .historyFilter {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    padding: 1rem 1.5rem 1rem 1.5rem;
 }
 
-function deleteTrade(id) {
-  const trades = loadTrades();
-  const updated = trades.filter(function(t) { return t.id !== id; });
-  saveAllTrades(updated);
-  renderHistory();
-  showToast('Trade deleted.');
-  if (window.currentTrade && window.currentTrade.id === id) {
-    summaryOutput.innerHTML = '';
-    window.currentTrade = null;
-  }
+.historySection .historyFilter #filterPair, 
+.historySection .historyFilter #filterOutcome{
+    border: none;
+    border-radius: 5px;
+    color: rgb(255, 255, 255);
+    font-family: Montserrat;
+    font-weight: 400;
+    font-size: 13px;
+    padding: 0.2rem 0.5rem;
+    background: rgba(0, 0, 0, 0.822);
+    cursor: pointer;
 }
 
-function openOutcomeUpdate(id) {
-  const cardEl = document.getElementById('historyCard-' + id);
-  if (!cardEl) return;
-  if (cardEl.querySelector('.outcomeForm')) return;
-
-  const trades = loadTrades();
-  const trade = trades.find(function(t) { return t.id === id; });
-  if (!trade) return;
-
-  // Extra guard — if somehow this is called on a closed trade, block it
-  if (trade.outcome !== 'Open') {
-    showToast('This trade is already closed.');
-    return;
-  }
-
-  const formHTML = `
-    <div class="outcomeForm">
-      <p style="font-size:11px;color:rgba(255,255,255,0.5);margin-bottom:4px;">
-        How did this trade close?
-      </p>
-      <div class="outcomeButtons">
-        <button class="outcomeBtn btnLoss"
-          onclick="confirmOutcomeUpdate(${id}, 'Loss', ${trade.stopPrice})">
-          SL Hit
-        </button>
-        <button class="outcomeBtn btnWin"
-          onclick="confirmOutcomeUpdate(${id}, 'Win', ${trade.takeProfitPrice})">
-          TP Hit
-        </button>
-        <button class="outcomeBtn btnBreakeven"
-          onclick="showBreakevenInput(${id})">
-          Breakeven
-        </button>
-      </div>
-      <div id="breakevenInput-${id}" style="display:none;margin-top:6px;">
-        <input type="number" id="breakevenPrice-${id}" step="any" placeholder="Enter breakeven price" />
-        <div class="outcomeFormActions" style="margin-top:6px;">
-          <button onclick="confirmBreakeven(${id})">Confirm</button>
-          <button onclick="cancelOutcomeUpdate(${id})">Cancel</button>
-        </div>
-      </div>
-      <button class="keepOpenBtn" onclick="cancelOutcomeUpdate(${id})">Keep Open</button>
-    </div>
-  `;
-  cardEl.insertAdjacentHTML('beforeend', formHTML);
+.historySection .historyFilter #filterPair:focus, 
+.historySection .historyFilter #filterOutcome:focus {
+    outline: none;
 }
 
-function cancelOutcomeUpdate(id) {
-  const formEl = document.querySelector('#historyCard-' + id + ' .outcomeForm');
-  if (formEl) formEl.remove();
+.historySection #tradeCount {
+    font-size: 15px;
+    color: gray;
+    padding: 0rem 1.5rem 1.5rem 1.5rem;
 }
 
-function confirmOutcomeUpdate(id, outcome, exitPrice) {
-  const trades = loadTrades();
-  const index = trades.findIndex(function(t) { return t.id === id; });
-  if (index === -1) { showToast('Trade not found.'); return; }
-  trades[index].outcome = outcome;
-  trades[index].dateClosed = new Date().toLocaleDateString();
-  trades[index].actualExitPrice = exitPrice;
-  saveAllTrades(trades);
-  renderHistory();
-  showToast('Outcome marked as ' + outcome + '.');
-  if (window.currentTrade && window.currentTrade.id === id) {
-    renderSummaryCard(trades[index]);
-    window.currentTrade = trades[index];
-  }
+.historySection .top {
+    box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.37);
 }
 
-function showBreakevenInput(id) {
-  const breakevenDiv = document.getElementById('breakevenInput-' + id);
-  if (breakevenDiv) breakevenDiv.style.display = 'block';
+.historySection #historyList {
+    min-height: 300px;
+    max-height: calc(100vh - 280px); /* 280px accounts for header + filter + count + performance */
+    overflow-y: auto;
+    scrollbar-width: none;
+    padding: 0.2rem 1.5rem 0.2rem 1.5rem;
+    border-bottom: 2px solid rgba(255,255,255,0.15);
 }
 
-function confirmBreakeven(id) {
-  const priceInput = document.getElementById('breakevenPrice-' + id);
-  const exitPrice = parseFloat(priceInput.value);
-  if (isNaN(exitPrice)) { showToast('Please enter a valid breakeven price.'); return; }
-  const trades = loadTrades();
-  const index = trades.findIndex(function(t) { return t.id === id; });
-  if (index === -1) { showToast('Trade not found.'); return; }
-  trades[index].outcome = 'Breakeven';
-  trades[index].dateClosed = new Date().toLocaleDateString();
-  trades[index].actualExitPrice = exitPrice;
-  saveAllTrades(trades);
-  renderHistory();
-  showToast('Outcome marked as Breakeven.');
-  if (window.currentTrade && window.currentTrade.id === id) {
-    renderSummaryCard(trades[index]);
-    window.currentTrade = trades[index];
-  }
+/* ── Stage 6: History Cards ─────────────────────────────────────── */
+
+.historyCard {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 8px;
+    padding: 0.7rem 1rem;
+    margin-bottom: 0.8rem;
+    font-size: 13px;
 }
 
-document.getElementById('filterPair').addEventListener('change', renderHistory);
-document.getElementById('filterOutcome').addEventListener('change', renderHistory);
-
-
-// ── STAGE 3: Form Data Capture ────────────────────────────────────────────────
-
-const tradeForm = document.getElementById('tradeForm');
-
-tradeForm.addEventListener('submit', function(event) {
-  event.preventDefault();
-
-  const pair = document.getElementById('pair').value;
-  const htfTimeframe = document.getElementById('htfTimeframe').value;
-  const ltfTimeframe = document.getElementById('ltfTimeframe').value;
-  const biasDirection = document.getElementById('biasDirection').value;
-  const poiType = document.getElementById('poiType').value;
-  const notes = document.getElementById('notes').value;
-  const entryPrice = parseFloat(document.getElementById('entryPrice').value);
-  const stopPrice = parseFloat(document.getElementById('stopPrice').value);
-  const takeProfitPrice = parseFloat(document.getElementById('takeProfitPrice').value);
-  const directionInput = document.querySelector('[name="direction"]:checked');
-  const direction = directionInput ? directionInput.value : null;
-  const liquidityChecked = document.querySelectorAll('[name="liquidity"]:checked');
-  const liquidity = Array.from(liquidityChecked).map(function(input) { return input.value; });
-  const confluencesChecked = document.querySelectorAll('[name="confluences"]:checked');
-  const confluences = Array.from(confluencesChecked).map(function(input) { return input.value; });
-  const dateOpened = new Date().toLocaleDateString();
-  const outcome = 'Open';
-  const id = Date.now();
-  const riskValue = riskSpan.textContent;
-  const rewardValue = rewardSpan.textContent;
-  const rrValue = rrSpan.textContent;
-
-  if (!direction) { showToast('Please select a direction — Long or Short.'); return; }
-  if (isNaN(entryPrice) || isNaN(stopPrice) || isNaN(takeProfitPrice)) { showToast('Please enter valid numbers for Entry, Stop Loss, and Take Profit.'); return; }
-  if (entryPrice === stopPrice) { showToast('Entry price and Stop Loss cannot be the same.'); return; }
-  if (riskValue === 'Invalid' || riskValue === '--') { showToast('Please check your prices — R:R calculation is invalid.'); return; }
-
-  const tradeData = {
-    id, pair, direction, htfTimeframe, ltfTimeframe, biasDirection,
-    poiType, liquidity, confluences, entryPrice, stopPrice, takeProfitPrice,
-    riskValue, rewardValue, rrValue, notes, dateOpened, outcome,
-    dateClosed: null, actualExitPrice: null
-  };
-
-  renderSummaryCard(tradeData);
-  window.currentTrade = tradeData;
-
-  if (isMobile()) {
-    const riskCal = document.querySelector('.riskCal');
-    if (riskCal) riskCal.scrollIntoView({ behavior: 'smooth' });
-  }
-});
-
-
-// ── saveTrade ─────────────────────────────────────────────────────────────────
-
-function saveTrade(id) {
-  const trades = loadTrades();
-  const alreadySaved = trades.find(function(t) { return t.id === id; });
-  if (alreadySaved) { showToast('This trade is already saved.'); return; }
-  if (!window.currentTrade || window.currentTrade.id !== id) {
-    showToast('No trade data found to save.');
-    return;
-  }
-  trades.unshift(window.currentTrade);
-  saveAllTrades(trades);
-  renderHistory();
-  showToast('Trade saved to history.');
+.historyCard .historyCardTop {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 0.4rem;
 }
 
-
-// ── STAGE 7: PDF Export ───────────────────────────────────────────────────────
-
-function exportPDF(id) {
-  const trades = loadTrades();
-  const trade = trades.find(function(t) { return t.id === id; });
-  const tradeToExport = trade || window.currentTrade;
-
-  if (!tradeToExport) {
-    showToast('No trade data found. Please save the trade first.');
-    return;
-  }
-
-  const userName = getUserName();
-  const userId = getUserId();
-
-  const liquidityText = tradeToExport.liquidity.length > 0 ? tradeToExport.liquidity.join(', ') : 'None';
-  const confluencesText = tradeToExport.confluences.length > 0 ? tradeToExport.confluences.join(', ') : 'None';
-  const directionDisplay = tradeToExport.direction.charAt(0).toUpperCase() + tradeToExport.direction.slice(1);
-  const notesDisplay = tradeToExport.notes.trim() !== '' ? tradeToExport.notes : '—';
-  const outcomeDisplay = tradeToExport.outcome;
-  const dateClosedDisplay = tradeToExport.dateClosed ? tradeToExport.dateClosed : 'Still Open';
-  const exitPriceDisplay = tradeToExport.actualExitPrice !== null ? tradeToExport.actualExitPrice : '—';
-
-  const receiptHTML = `
-    <div style="font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;max-width:600px;margin:0 auto;padding:30px;color:#111;background:#fff;">
-      <div style="border-bottom:3px solid #111;padding-bottom:16px;margin-bottom:20px;">
-        <h1 style="font-size:20px;font-weight:800;margin:0 0 4px 0;letter-spacing:1px;">SMC TRADE PLAN</h1>
-        <p style="margin:0;font-size:13px;color:#555;">Trade Journal — ${userName} &nbsp;|&nbsp; ${userId}</p>
-      </div>
-      <div style="display:flex;justify-content:space-between;align-items:center;background:#f4f4f4;border-radius:6px;padding:12px 16px;margin-bottom:20px;">
-        <div>
-          <p style="margin:0;font-size:11px;color:#888;text-transform:uppercase;">Pair</p>
-          <p style="margin:0;font-size:20px;font-weight:800;">${tradeToExport.pair}</p>
-        </div>
-        <div style="text-align:center;">
-          <p style="margin:0;font-size:11px;color:#888;text-transform:uppercase;">Direction</p>
-          <p style="margin:0;font-size:16px;font-weight:700;color:${tradeToExport.direction === 'long' ? '#3a7d0a' : '#b50000'};">${directionDisplay}</p>
-        </div>
-        <div style="text-align:right;">
-          <p style="margin:0;font-size:11px;color:#888;text-transform:uppercase;">Outcome</p>
-          <p style="margin:0;font-size:16px;font-weight:700;color:${outcomeDisplay === 'Win' ? '#3a7d0a' : outcomeDisplay === 'Loss' ? '#b50000' : outcomeDisplay === 'Breakeven' ? '#b07000' : '#555'};">${outcomeDisplay}</p>
-        </div>
-      </div>
-      <div style="display:flex;justify-content:space-between;margin-bottom:16px;">
-        <div>
-          <p style="margin:0;font-size:11px;color:#888;text-transform:uppercase;">Date Opened</p>
-          <p style="margin:0;font-size:14px;font-weight:600;">${tradeToExport.dateOpened}</p>
-        </div>
-        <div style="text-align:right;">
-          <p style="margin:0;font-size:11px;color:#888;text-transform:uppercase;">Date Closed</p>
-          <p style="margin:0;font-size:14px;font-weight:600;">${dateClosedDisplay}</p>
-        </div>
-      </div>
-      <div style="border-top:1px solid #ddd;margin:16px 0;"></div>
-      <h2 style="font-size:13px;text-transform:uppercase;color:#888;letter-spacing:1px;margin:0 0 12px 0;">Analysis</h2>
-      ${buildRow('HTF Timeframe', tradeToExport.htfTimeframe)}
-      ${buildRow('LTF Timeframe', tradeToExport.ltfTimeframe)}
-      ${buildRow('Bias Direction', tradeToExport.biasDirection)}
-      ${buildRow('POI Type', tradeToExport.poiType)}
-      ${buildRow('Liquidity Context', liquidityText)}
-      ${buildRow('Confluences', confluencesText)}
-      <div style="border-top:1px solid #ddd;margin:16px 0;"></div>
-      <h2 style="font-size:13px;text-transform:uppercase;color:#888;letter-spacing:1px;margin:0 0 12px 0;">Prices</h2>
-      ${buildRow('Entry Price', tradeToExport.entryPrice)}
-      ${buildRow('Stop Loss', tradeToExport.stopPrice)}
-      ${buildRow('Take Profit', tradeToExport.takeProfitPrice)}
-      ${buildRow('Actual Exit Price', exitPriceDisplay)}
-      <div style="border-top:1px solid #ddd;margin:16px 0;"></div>
-      <h2 style="font-size:13px;text-transform:uppercase;color:#888;letter-spacing:1px;margin:0 0 12px 0;">Risk & Reward</h2>
-      ${buildRow('Risk', tradeToExport.riskValue, '#b50000')}
-      ${buildRow('Reward', tradeToExport.rewardValue, '#3a7d0a')}
-      ${buildRow('R:R Ratio', tradeToExport.rrValue, '#3a7d0a')}
-      <div style="border-top:1px solid #ddd;margin:16px 0;"></div>
-      <h2 style="font-size:13px;text-transform:uppercase;color:#888;letter-spacing:1px;margin:0 0 8px 0;">Notes</h2>
-      <p style="font-size:13px;line-height:1.6;color:#333;margin:0;">${notesDisplay}</p>
-      <div style="border-top:2px solid #111;margin-top:30px;padding-top:12px;text-align:center;font-size:11px;color:#aaa;">
-        SMC Trade Setup Checklist &nbsp;|&nbsp; Trade ID: ${tradeToExport.id} &nbsp;|&nbsp; User: ${userId}
-      </div>
-    </div>
-  `;
-
-  const container = document.createElement('div');
-  container.innerHTML = receiptHTML;
-  document.body.appendChild(container);
-
-  const options = {
-    margin: 10,
-    filename: 'SMC-Trade-' + tradeToExport.pair + '-' + tradeToExport.dateOpened.replace(/\//g, '-') + '.pdf',
-    image: { type: 'jpeg', quality: 0.98 },
-    html2canvas: { scale: 2 },
-    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-  };
-
-  showToast('Generating PDF...');
-
-  html2pdf().set(options).from(container).save().then(function() {
-    document.body.removeChild(container);
-    showToast('PDF downloaded — ' + userName + '.');
-  });
+.historyCard .historyPair {
+    font-weight: 700;
+    font-size: 13px;
+    flex: 1;
 }
 
-function buildRow(label, value, color) {
-  const valueColor = color || '#111';
-  return `
-    <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #f0f0f0;font-size:13px;">
-      <span style="color:#666;">${label}</span>
-      <span style="font-weight:600;color:${valueColor};">${value}</span>
-    </div>
-  `;
+.historyCard .historyCardMid {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    color: rgba(255,255,255,0.5);
+    margin-bottom: 0.5rem;
+}
+
+.historyCard .historyCardActions {
+    display: flex;
+    gap: 6px;
+}
+
+.historyCard .historyCardActions button {
+    flex: 1;
+    padding: 0.3rem 0.4rem;
+    border: none;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.2s ease;
+    background: rgba(255,255,255,0.08);
+    color: white;
+}
+
+.historyCard .historyCardActions button:hover {
+    background: rgba(255,255,255,0.18);
+}
+
+/* ── Stage 6: Outcome Update Form ──────────────────────────────── */
+
+.outcomeForm {
+    margin-top: 0.7rem;
+    padding-top: 0.7rem;
+    border-top: 1px solid rgba(255,255,255,0.1);
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.outcomeForm select,
+.outcomeForm input {
+    width: 100%;
+    background: rgba(0,0,0,0.4);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 4px;
+    color: white;
+    font-family: Montserrat;
+    font-size: 12px;
+    padding: 0.3rem 0.5rem;
+}
+
+.outcomeForm select:focus,
+.outcomeForm input:focus {
+    outline: none;
+}
+
+.outcomeFormActions {
+    display: flex;
+    gap: 6px;
+}
+
+.outcomeFormActions button {
+    flex: 1;
+    padding: 0.3rem;
+    border: none;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.2s ease;
+}
+
+.outcomeFormActions button:first-child {
+    background: #6200ea;
+    color: white;
+}
+
+.outcomeFormActions button:first-child:hover {
+    background: #3d0091;
+}
+
+.outcomeFormActions button:last-child {
+    background: rgba(255,255,255,0.08);
+    color: white;
+}
+
+.outcomeFormActions button:last-child:hover {
+    background: rgba(255,255,255,0.18);
+}
+
+.keepOpenBtn {
+    width: 100%;
+    padding: 0.3rem;
+    border: none;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+    background: rgba(255,255,255,0.05);
+    color: rgba(255,255,255,0.4);
+    transition: 0.2s ease;
+}
+
+.keepOpenBtn:hover {
+    background: rgba(255,255,255,0.1);
+    color: white;
+}
+
+.historySection .performance {
+    padding-top: 1rem;
+    box-shadow: 0px -50px 50px rgba(0, 0, 0, 0.699);
+}
+
+.historySection .performance h3 {
+    text-align: center;
+    font-weight: 300;
+    padding: 0.5rem 1.5rem 1rem 1.5rem;
+    border-bottom: 2px solid rgba(255,255,255,0.15);
+}
+
+.historySection .performance p {
+    font-size: 15px;
+    padding: 0.5rem 1.5rem;
+}
+
+.historySection .performance p span {
+    color: rgb(117, 190, 8);
+}
+
+/* Trade Plan styling */
+
+.tradePlan{
+    width: 50%;
+    height: 100vh;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255,255,255,0.15) transparent;
+}
+
+.tradePlan .pageHeader {
+    padding: 1.5rem;
+    border-bottom: 2px solid rgba(255,255,255,0.15);
+}
+
+.tradePlan .pageHeader .logo{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.tradePlan .pageHeader .logo img {
+    width: 200px;
+}
+
+.tradePlan .pageHeader p{ 
+    text-align: center;
+}
+
+.tradePlan form {
+    padding: 1rem 1.5rem;
+}
+
+.tradePlan .formGroup {
+    border: 2px solid rgba(248, 248, 255, 0.12);
+    border-radius: 15px;
+    padding: 1rem 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.tradePlan .formGroup legend {
+    font-weight: 600;
+    text-transform: uppercase;
+    color: rgb(255, 255, 255);
+    background: rgba(248, 248, 255, 0.062);
+    border-radius: 5px;
+    padding: 0.5rem 1rem;
+}
+
+.tradePlan .formGroup select,
+.tradePlan .formGroup input:not([type="checkbox"]):not([type="radio"]){
+    width: 100%;
+    border: none;
+    border-radius: 5px;
+    color: rgb(255, 255, 255);
+    font-family: Montserrat;
+    font-weight: 400;
+    font-size: 13px;
+    padding: 0.4rem 0.3rem;
+    background: rgba(0, 0, 0, 0.397);
+    cursor: pointer;
+}
+
+.tradePlan .formGroup select:focus,
+.tradePlan .formGroup input:focus {
+    outline: none;
+}
+
+.tradePlan .formGroup label {
+    display: block;
+    font-size: 13px;
+    font-weight: 500;
+    color: rgba(255,255,255,0.7);
+    margin-top: 0.8rem;
+    margin-bottom: 0.3rem;
+}
+
+.tradePlan .formGroup .radioGroup {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.tradePlan .formGroup .radioGroup label,
+.tradePlan .formGroup label:has(input[type="checkbox"]) {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 0.4rem;
+    margin-bottom: 0;
+}
+
+.tradePlan .formGroup #notes {
+    color: white;
+    background: rgba(0, 0, 0, 0.397);
+    width: 100%;
+    height: 150px;
+    resize: none;
+    padding: 0.5rem 0.5rem;
+    margin-top: 0.5rem;
+    outline: none;
+    border: none;
+    border-radius: 5px;
+}
+
+.tradePlan .formGroup #notes::placeholder{
+    font-family: Montserrat;
+}
+
+/* ── Image Upload Slots ─────────────────────────────────── */
+
+.imageUploadSlot {
+    margin-bottom: 0.8rem;
+}
+
+.imageUploadSlot input[type="file"] {
+    display: none;
+}
+
+.uploadLabel {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0.5rem 0.8rem;
+    background: rgba(255,255,255,0.05);
+    border: 1px dashed rgba(255,255,255,0.2);
+    border-radius: 6px;
+    font-size: 12px;
+    color: rgba(255,255,255,0.5);
+    cursor: pointer;
+    transition: 0.2s ease;
+    margin-top: 0;
+    margin-bottom: 0.4rem;
+    width: 100%;
+    font-weight: 500;
+}
+
+.uploadLabel:hover {
+    background: rgba(255,255,255,0.08);
+    color: white;
+    border-color: rgba(255,255,255,0.35);
+}
+
+.imgPreview {
+    display: none;
+    position: relative;
+    border-radius: 6px;
+    overflow: hidden;
+    border: 1px solid rgba(255,255,255,0.1);
+}
+
+.imgPreview img {
+    width: 100%;
+    display: block;
+    max-height: 160px;
+    object-fit: cover;
+    border-radius: 6px;
+}
+
+.imgPreview .removeImg {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    background: rgba(0,0,0,0.7);
+    border: none;
+    color: white;
+    border-radius: 4px;
+    padding: 0.2rem 0.4rem;
+    font-size: 11px;
+    cursor: pointer;
+    transition: 0.2s ease;
+    width: auto;
+    margin: 0;
+}
+
+.imgPreview .removeImg:hover {
+    background: rgba(180,0,0,0.8);
+}
+
+/* Summary card image section */
+.summaryCard .cardImages {
+    margin-top: 0.8rem;
+    padding-top: 0.8rem;
+    border-top: 1px solid rgba(255,255,255,0.08);
+}
+
+.summaryCard .cardImages p {
+    font-size: 12px;
+    color: rgba(255,255,255,0.4);
+    margin-bottom: 0.5rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.summaryCard .cardImages img {
+    width: 100%;
+    border-radius: 6px;
+    margin-bottom: 0.5rem;
+    border: 1px solid rgba(255,255,255,0.08);
+    object-fit: cover;
+    max-height: 180px;
+}
+
+.tradePlan button {
+    width: 100%;
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 5px;
+    background: #6200ea;
+    color: white;
+    font-weight: 600;
+    cursor: pointer;
+    margin-bottom: 1rem;
+    transition: 0.3s ease;
+}
+
+.tradePlan button:hover {
+    background:#3d0091;
 }
 
 
-// ── Wire up buttons ───────────────────────────────────────────────────────────
 
-const historyFloatBtn = document.querySelector('.hitoryBtn');
-if (historyFloatBtn) {
-  historyFloatBtn.addEventListener('click', openHistoryPanel);
+/* Risk Calculator styling */
+
+.riskCal{
+    width: 25%;
+    height: 100vh;
+    overflow-y: auto;
+    scrollbar-width: none;
+    scroll-behavior: smooth;
+    border-left: 2px solid    rgba(255,255,255,0.15);
 }
 
-const historyOverlay = document.getElementById('historyOverlay');
-if (historyOverlay) {
-  historyOverlay.addEventListener('click', closeHistoryPanel);
+.riskCal h4 {
+    font-size: 20px;
+    text-align: center;
+    font-weight: 500;
+    padding: 1rem 1.5rem 1rem 1.5rem;
+    border-bottom: 2px solid rgba(255,255,255,0.15);
 }
 
-const backBtnFixed = document.getElementById('backBtnFixed');
-if (backBtnFixed) {
-  backBtnFixed.addEventListener('click', handleBackBtn);
+.riskCal .rrPreview {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 10px;
+    padding: 1rem 1.5rem;
+    margin: 1rem;
+} 
+
+.riskCal #riskValue {
+    color: red;
 }
 
+.riskCal #rewardValue {
+    color: rgb(117, 190, 8);
+}
 
-// ── Initialize on page load ───────────────────────────────────────────────────
+.riskCal #rrValue {
+    color: rgb(117, 190, 8);
+}
 
-renderHistory();
-checkUserName();
+.riskCal .rrPreview p {
+    font-size: 14px;
+    color: rgba(255,255,255,0.6);
+    padding: 0.4rem 0;
+}
+
+.summaryOutput .summaryCard {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 10px;
+    padding: 1rem 1.5rem;
+    margin: 1rem;
+    font-size: 13px;
+    line-height: 1.8;
+}
+
+.summaryCard .cardTitle {
+    font-size: 15px;
+    font-weight: 700;
+    margin-bottom: 0.8rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid rgba(255,255,255,0.12);
+}
+
+.summaryCard .badge {
+    display: inline-block;
+    padding: 0.2rem 0.6rem;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.summaryCard .badge.long { background: rgba(117,190,8,0.2); color: rgb(117,190,8); }
+.summaryCard .badge.short { background: rgba(255,0,0,0.2); color: red; }
+.summaryCard .badge.open { background: rgba(255,255,255,0.1); color: white; }
+.summaryCard .badge.win { background: rgba(117,190,8,0.2); color: rgb(117,190,8); }
+.summaryCard .badge.loss { background: rgba(255,0,0,0.2); color: red; }
+.summaryCard .badge.breakeven { background: rgba(255,165,0,0.2); color: orange; }
+
+.summaryCard .cardRow {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.2rem 0;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+
+.summaryCard .cardLabel {
+    color: rgba(255,255,255,0.5);
+    font-size: 12px;
+}
+
+.summaryCard .cardValue {
+    color: white;
+    font-weight: 500;
+    text-align: right;
+    max-width: 60%;
+}
+
+.summaryCard .cardActions {
+    display: flex;
+    gap: 10px;
+    margin-top: 1rem;
+}
+
+.summaryCard .cardActions button {
+    flex: 1;
+    padding: 0.4rem 0.5rem;
+    border: none;
+    border-radius: 5px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.3s ease;
+}
+
+.summaryCard .btnSave { background: #6200ea; color: white; }
+.summaryCard .btnSave:hover { background: #3d0091; }
+.summaryCard .btnExport { background: rgba(255,255,255,0.1); color: white; }
+.summaryCard .btnExport:hover { background: rgba(255,255,255,0.2); }
+
+
+/* Custom notification/alert */
+.toast {
+    position: fixed;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(30, 0, 50, 0.95);
+    color: white;
+    padding: 0.7rem 1.5rem;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    border: 1px solid rgba(255,255,255,0.15);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+    z-index: 9999;
+}
+
+.toast.show {
+    opacity: 1;
+}
+
+.outcomeButtons {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 4px;
+}
+
+.outcomeBtn {
+    flex: 1;
+    padding: 0.4rem 0.3rem;
+    border: none;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: 0.2s ease;
+}
+
+.btnLoss { background: rgba(255,0,0,0.2); color: red; }
+.btnLoss:hover { background: rgba(255,0,0,0.35); }
+.btnWin { background: rgba(117,190,8,0.2); color: rgb(117,190,8); }
+.btnWin:hover { background: rgba(117,190,8,0.35); }
+.btnBreakeven { background: rgba(255,165,0,0.2); color: orange; }
+.btnBreakeven:hover { background: rgba(255,165,0,0.35); }
+
+.hitoryBtn {
+    display: none;
+    position: fixed;
+    padding: 1rem 1rem;
+    font-size: 30px;
+    border: none;
+    border-radius: 50%;
+    color: white;
+    background:  #6200ea;
+    box-shadow: 0 0 15px rgba(59, 59, 59, 0.329);
+    cursor: pointer;
+    left: 90%;
+    top: 85%;
+    transition: 0.3s ease;
+} 
+
+.hitoryBtn:hover {
+    background:  #3d0091;
+}
+
+/* Back button — fixed, only visible on mobile when viewing a trade */
+.backBtn-fixed {
+    display: none;
+    position: fixed;
+    top: 1rem;
+    left: 1rem;
+    z-index: 1100;
+    background: rgba(30,0,50,0.95);
+    border: 1px solid rgba(255,255,255,0.15);
+    color: white;
+    font-size: 16px;
+    padding: 0.5rem 0.8rem;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.backBtn-fixed.visible {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.reportModal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.85);
+    z-index: 9000;
+    align-items: center;
+    justify-content: center;
+}
+
+.reportModal.open { display: flex; }
+
+.reportModalBox {
+    background: #0a0010;
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 12px;
+    padding: 2rem;
+    width: 300px;
+    text-align: center;
+}
+
+.reportModalBox h3 {
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+.reportModalBox p {
+    font-size: 13px;
+    color: rgba(255,255,255,0.5);
+    margin-bottom: 1.2rem;
+}
+
+.reportOptions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 0.8rem;
+}
+
+.reportOptions button {
+    padding: 0.6rem 0.5rem;
+    background: rgba(98,0,234,0.15);
+    border: 1px solid rgba(98,0,234,0.4);
+    color: white;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.2s ease;
+    margin: 0;
+    width: 100%;
+}
+
+.reportOptions button:hover {
+    background: #6200ea;
+    border-color: #6200ea;
+}
+
+.reportCancelBtn {
+    width: 100%;
+    padding: 0.5rem;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    color: rgba(255,255,255,0.4);
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.2s ease;
+    margin: 0;
+}
+
+.reportCancelBtn:hover {
+    background: rgba(255,255,255,0.1);
+    color: white;
+}
+
+/* Table Screen */
+@media (max-width: 960px) {
+    .historySection {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 320px;
+        height: 100vh;
+        z-index: 1000;
+        background:linear-gradient(to bottom, rgba(0,0,0,0.95), black);
+        border-right: 2px solid rgba(255,255,255,0.15);
+    }
+
+    .historySection.open {
+        display: block;
+    }
+
+    .historyOverlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,0.5);
+        z-index: 999;
+    }
+
+    .historyOverlay.open {
+        display: block;
+    }
+
+    .hitoryBtn {
+        left: 85%;
+        display: flex;
+    }
+
+    .tradePlan {
+        width: 60%;
+    }
+
+    .riskCal {
+        width: 40%;
+    }
+}
+
+/* Mobile Screen */
+@media (max-width: 460px) {
+    body {
+        height: auto;
+        flex-direction: column;
+    }
+
+    .historySection.open {
+        display: block;
+    }
+
+    .historySection {
+        position: fixed;
+        width: 100%;
+        z-index: 1000;
+    }
+
+    .historyOverlay {
+        background: rgb(0,0,0);
+    }
+
+    .hitoryBtn {
+        left: 80%;
+    }
+
+    .tradePlan {
+        height: auto;
+        width: 100%;
+    }
+
+    .riskCal {
+        display: block;
+        border-top: 2px solid rgba(128, 128, 128, 0.212);
+        border-left: none;
+        height: auto;
+        width: 100%;
+    }
+}
